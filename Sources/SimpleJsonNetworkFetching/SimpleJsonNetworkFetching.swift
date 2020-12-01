@@ -62,6 +62,7 @@ public struct SimpleJsonNetworkFetching {
         .resume()
     }
 
+    /// using session of `URLSession.shared`
     public static let shared = Self()
 
     private var session: URLSession
