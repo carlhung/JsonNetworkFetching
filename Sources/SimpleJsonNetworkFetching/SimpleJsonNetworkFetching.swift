@@ -70,22 +70,16 @@ public struct SimpleJsonNetworkFetching {
         self.session = session
     }
 
+    /// when wanting to use `GET`, use this static method instead of case `get` of HTTPMethod.
     public static func get(headers: [String: String]) -> HTTPMethod<Stump> {
         return HTTPMethod<Stump>.get(headers: headers)
     }
 }
 
-// func getRequest(headers: [String: String]) -> HTTPMethod<Stump> {
-//     return HTTPMethod<Stump>.get(headers: headers)
-// }
-
-// func get(headers: [String: String]) -> HTTPMethod<Stump> {
-//     return HTTPMethod<Stump>.get(headers: headers)
-// }
-
 public struct Stump: Encodable {}
 
 public enum HTTPMethod<T: Encodable> {
+    /// Don't use this enum case, use `SimpleJsonNetworkFetching`'s `get` static method.
     case get(headers: [String: String])
     case post(headers: [String: String], body: T)
 }

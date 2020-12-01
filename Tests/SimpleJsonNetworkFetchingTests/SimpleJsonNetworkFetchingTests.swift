@@ -6,8 +6,11 @@ struct Stump: Encodable {}
 final class SimpleJsonNetworkFetchingTests: XCTestCase {
     func testExample() {
         let share = SimpleJsonNetworkFetching.shared
-        share.request(url: URL(string: "")!, httpMethod: SimpleJsonNetworkFetching.get(headers: [:]), handler: { (_: Result<ST, NetworkFetchingError>) in
-
+        share.request(url: URL(string: "")!, httpMethod: SimpleJsonNetworkFetching.get(headers: [:]), handler: { (result: Result<ST, NetworkFetchingError>) in
+            switch result {
+                case .failure(let error): print(error)
+                case .success(_): print("success")
+            }
         })
     }
 
