@@ -35,7 +35,7 @@ public struct SimpleJsonNetworkFetching {
         
         session.dataTask(with: request) { data, response, error in
             #if os(iOS)// || os(watchOS) //|| os(OSX)
-            Dispatch.main.async {
+            DispatchQueue.main.async {
                 let result: Result<Output, NetworkFetchingError> = Self.handler(error: error, response: response, data: data, statusCode: statusCode)
                 completionHandler(result)
             }
