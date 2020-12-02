@@ -24,7 +24,7 @@ public struct SimpleJsonNetworkFetching {
     public func request<Output: Decodable, Input: Encodable>(
         url: URL,
         httpMethod: HTTPMethod<Input>,
-        statusCode: Range<Int> = Range(200 ... 299),
+        statusCodeRange: Range<Int> = Range(200 ... 299),
         cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy,
         timeoutInterval: TimeInterval = 60.0,
         completionHandler: @escaping (Result<Output, NetworkFetchingError>) -> Void
@@ -53,26 +53,26 @@ public struct SimpleJsonNetworkFetching {
         session.dataTask(with: request) { data, response, error in
             #if os(iOS)// || os(watchOS) //|| os(OSX)
             DispatchQueue.main.async {
-                let result: Result<Output, NetworkFetchingError> = Self.handler(error: error, response: response, data: data, statusCode: statusCode)
+                let result: Result<Output, NetworkFetchingError> = Self.handler(error: error, response: response, data: data, statusCodeRange: statusCodeRange)
                 completionHandler(result)
             }
 //            #elseif
             #else
-            let result: Result<Output, NetworkFetchingError> = Self.handler(error: error, response: response, data: data, statusCode: statusCode)
+            let result: Result<Output, NetworkFetchingError> = Self.handler(error: error, response: response, data: data, statusCodeRange: statusCodeRange)
             completionHandler(result)
             #endif
         }
         .resume()
     }
     
-    private static func handler<Output: Decodable>(error: Error?, response: URLResponse?, data: Data?, statusCode: Range<Int>) -> Result<Output, NetworkFetchingError> {
+    private static func handler<Output: Decodable>(error: Error?, response: URLResponse?, data: Data?, statusCodeRange: Range<Int>) -> Result<Output, NetworkFetchingError> {
         guard error == nil else {
             return .failure(.networkResponseError(message: error!))
         }
         guard let httpResponse = response as? HTTPURLResponse else {
             return .failure(.notHttpResponse)
         }
-        guard statusCode ~= httpResponse.statusCode else {
+        guard statusCodeRange ~= httpResponse.statusCode else {
             return .failure(.invalidStatusCode(httpResponse.statusCode, responseData: data))
         }
         guard let data = data else {
