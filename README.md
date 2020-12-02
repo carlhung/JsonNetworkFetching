@@ -2,11 +2,14 @@
 # SimpleJsonNetworkFetching
 
 This library is simply for fetching json only.
+
 **Support Systems**
+
 `iOS` and `Linux`
 you can try adding/testing on other OSs.
 
 **Usage**
+
 use default `URLSession.shared`:
 `let shared = SimpleJsonNetworkFetching.shared`
 
@@ -16,6 +19,7 @@ use default `URLSession.shared`:
         case .success(let aDecoableValue): break
         }
     }
+
 `httpMethod` only supports `get` and `post`. `post` can carry a body of `Encodable`.
 
 when wanting to do `get request`, use `SimpleJsonNetworkFetching.get(headers:)`, example:
@@ -26,5 +30,7 @@ when wanting to do `post request`, use `.post(headers:body:)`. `body` should be 
 
     shared.request(url: url, httpMethod: .post(headers: ["accept": "text/plain"], body: someEncodableValue)...
 
+
 **Installation**
+
     .package(url: "https://github.com/carlhung/JsonNetworkFetching.git", .upToNextMajor(from: "1.0.0"))
