@@ -3,6 +3,23 @@ import Foundation
 import FoundationNetworking
 #endif
 
+public struct Stump: Encodable {}
+
+public enum HTTPMethod<T: Encodable> {
+    /// Don't use this enum case, use `SimpleJsonNetworkFetching`'s `get` static method.
+    case get(headers: [String: String])
+    case post(headers: [String: String], body: T)
+}
+
+public enum NetworkFetchingError: Error {
+    case encodeError(Error)
+    case networkResponseError(message: Error)
+    case notHttpResponse
+    case invalidStatusCode(Int, responseData: Data?)
+    case failedToExtractData
+    case decodeError(Error, responseData: Data?)
+}
+
 public struct SimpleJsonNetworkFetching {
     public func request<Output: Decodable, Input: Encodable>(
         url: URL,
@@ -56,7 +73,7 @@ public struct SimpleJsonNetworkFetching {
             return .failure(.notHttpResponse)
         }
         guard statusCode ~= httpResponse.statusCode else {
-            return .failure(.invalidStatusCode(httpResponse.statusCode))
+            return .failure(.invalidStatusCode(httpResponse.statusCode, responseData: data))
         }
         guard let data = data else {
             return .failure(.failedToExtractData)
@@ -65,7 +82,7 @@ public struct SimpleJsonNetworkFetching {
             let decodedResponse = try JSONDecoder().decode(Output.self, from: data)
             return .success(decodedResponse)
         } catch {
-            return .failure(.decodeError(error))
+            return .failure(.decodeError(error, responseData: data))
         }
     }
     
@@ -84,19 +101,4 @@ public struct SimpleJsonNetworkFetching {
     }
 }
 
-public struct Stump: Encodable {}
 
-public enum HTTPMethod<T: Encodable> {
-    /// Don't use this enum case, use `SimpleJsonNetworkFetching`'s `get` static method.
-    case get(headers: [String: String])
-    case post(headers: [String: String], body: T)
-}
-
-public enum NetworkFetchingError: Error {
-    case encodeError(Error)
-    case networkResponseError(message: Error)
-    case notHttpResponse
-    case invalidStatusCode(Int)
-    case failedToExtractData
-    case decodeError(Error)
-}
