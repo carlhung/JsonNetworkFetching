@@ -68,8 +68,7 @@ final class SimpleJsonNetworkFetchingTests: XCTestCase {
         }
     }
 
-//    static var allTests = [
-//        ("testExample", testExample),
-////        ("testExample2: post request", textExample2),
-//    ]
+   static var allTests = [
+       ("testExample", testExample),
+   ]
 }
