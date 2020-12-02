@@ -1,22 +1,50 @@
 @testable import SimpleJsonNetworkFetching
 import XCTest
 
-struct Stump: Encodable {}
+let rootAPI = "http://hkfp1.centanet.com/coredev/CentanetAPITest"
+
 
 final class SimpleJsonNetworkFetchingTests: XCTestCase {
+    
+    let share = SimpleJsonNetworkFetching.shared
+    
+//    func testExample() {
+//        var finalResult: Result<BranchDetail, NetworkFetchingError>?
+//        share.request(url: URL(string: rootAPI + "/api/Branch/Detail")!, httpMethod: SimpleJsonNetworkFetching.get(headers: [:])) { (result: Result<BranchDetail, NetworkFetchingError>) in
+//            finalResult = result
+//        }
+//        while finalResult == nil {}
+//        if let unwrappedResult = finalResult {
+//            switch unwrappedResult {
+//            case .failure(let error): print("error: \(error)")
+////            case .success(let val): print("value: \(val)")
+//            case .success: print("testExample get success")
+//            }
+//        }
+//    }
+    
     func testExample() {
-        let share = SimpleJsonNetworkFetching.shared
-        share.request(url: URL(string: "")!, httpMethod: SimpleJsonNetworkFetching.get(headers: [:]), handler: { (result: Result<ST, NetworkFetchingError>) in
-            switch result {
-                case .failure(let error): print(error)
-                case .success(_): print("success")
+        var finalResult: Result<GetBranchFilterOptionsResponse, NetworkFetchingError>?
+        
+        let body = GetBranchFilterOptionsRequestBody(keyword: "string", typeCodes: ["string"], bigestAndEstate: ["string"], dept: "RES", costCtr: "string", costCtrWebScopeIDs: ["string"], primarySchoolNets: ["string"], schools: ["string"], mtrs: ["string"], offset: 0, size: 0, autoCompleteZoomToBottomLayer: true, sort: "GeoDistance", order: "Ascending", geoFilter: GeoFilter(points: ["string"], zoom: 0, geoPoints: []), geoNearBy: GeoNearBy(latLng: "string", radius: 0))
+
+        let headers = ["accept": "text/plain", "Content-Type": "application/json-patch+json"]
+
+        share.request(url: URL(string: rootAPI + "/api/Branch/GetBranchFilterOptions")!, httpMethod: .post(headers: headers, body: body)) { (result: Result<GetBranchFilterOptionsResponse, NetworkFetchingError>) in
+            finalResult = result
+        }
+        while finalResult == nil {}
+        if let unwrappedResult = finalResult {
+            switch unwrappedResult {
+            case .failure(let error): print("error: \(error)")
+//            case .success(let val): print("value: \(val)")
+            case .success: print("testExample post success")
             }
-        })
+        }
     }
 
-    static var allTests = [
-        ("testExample", testExample),
-    ]
+//    static var allTests = [
+//        ("testExample", testExample),
+////        ("testExample2: post request", textExample2),
+//    ]
 }
-
-struct ST: Decodable {}
