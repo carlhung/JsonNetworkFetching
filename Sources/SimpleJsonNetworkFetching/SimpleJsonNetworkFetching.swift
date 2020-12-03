@@ -21,14 +21,19 @@ public enum NetworkFetchingError: Error {
 }
 
 public struct SimpleJsonNetworkFetching {
-    public func request<Output: Decodable, Input: Encodable>(
-        url: URL,
-        httpMethod: HTTPMethod<Input>,
-        statusCodeRange: Range<Int> = Range(200 ... 299),
-        cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy,
-        timeoutInterval: TimeInterval = 60.0,
-        completionHandler: @escaping (Result<Output, NetworkFetchingError>) -> Void
-    ) {
+    
+    /// using session of `URLSession.shared`
+    public static let shared = Self()
+    
+    /// when wanting to use `GET`, use this static method instead of case `get` of HTTPMethod.
+    public static func get(headers: [String: String]) -> HTTPMethod<Stump> {
+        return HTTPMethod<Stump>.get(headers: headers)
+    }
+    
+    private static func createRequest<Input: Encodable>(url: URL,
+                                                        httpMethod: HTTPMethod<Input>,
+                                                        cachePolicy: URLRequest.CachePolicy,
+                                                        timeoutInterval: TimeInterval) -> Result<URLRequest, NetworkFetchingError> {
         var request = URLRequest(url: url, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval)
         switch httpMethod {
         case .get:
@@ -45,27 +50,29 @@ public struct SimpleJsonNetworkFetching {
                 let data = try JSONEncoder().encode(body)
                 request.httpBody = data
             } catch {
-                completionHandler(.failure(.encodeError(error)))
-                return
+                return .failure(.encodeError(error))
             }
         }
-        
-        session.dataTask(with: request) { data, response, error in
-            #if os(iOS)// || os(watchOS) //|| os(OSX)
-            DispatchQueue.main.async {
-                let result: Result<Output, NetworkFetchingError> = Self.handler(error: error, response: response, data: data, statusCodeRange: statusCodeRange)
-                completionHandler(result)
-            }
-//            #elseif
-            #else
-            let result: Result<Output, NetworkFetchingError> = Self.handler(error: error, response: response, data: data, statusCodeRange: statusCodeRange)
-            completionHandler(result)
-            #endif
-        }
-        .resume()
+        return .success(request)
     }
     
-    private static func handler<Output: Decodable>(error: Error?, response: URLResponse?, data: Data?, statusCodeRange: Range<Int>) -> Result<Output, NetworkFetchingError> {
+    private static func decodableDataHandler<Output: Decodable>(error: Error?, response: URLResponse?, data: Data?, statusCodeRange: Range<Int>) -> Result<Output, NetworkFetchingError> {
+        let finalData: Data
+        switch Self.dataHandler(error: error, response: response, data: data, statusCodeRange: statusCodeRange) {
+        case .failure(let networkError):
+            return .failure(networkError)
+        case .success(let returnData):
+            finalData = returnData
+        }
+        do {
+            let decodedResponse = try JSONDecoder().decode(Output.self, from: finalData)
+            return .success(decodedResponse)
+        } catch {
+            return .failure(.decodeError(error, responseData: data))
+        }
+    }
+    
+    private static func dataHandler(error: Error?, response: URLResponse?, data: Data?, statusCodeRange: Range<Int>) -> Result<Data, NetworkFetchingError> {
         guard error == nil else {
             return .failure(.networkResponseError(message: error!))
         }
@@ -78,16 +85,8 @@ public struct SimpleJsonNetworkFetching {
         guard let data = data else {
             return .failure(.failedToExtractData)
         }
-        do {
-            let decodedResponse = try JSONDecoder().decode(Output.self, from: data)
-            return .success(decodedResponse)
-        } catch {
-            return .failure(.decodeError(error, responseData: data))
-        }
+        return .success(data)
     }
-    
-    /// using session of `URLSession.shared`
-    public static let shared = Self()
     
     private var session: URLSession
     
@@ -95,9 +94,96 @@ public struct SimpleJsonNetworkFetching {
         self.session = session
     }
     
-    /// when wanting to use `GET`, use this static method instead of case `get` of HTTPMethod.
-    public static func get(headers: [String: String]) -> HTTPMethod<Stump> {
-        return HTTPMethod<Stump>.get(headers: headers)
+//    private func request<Input: Encodable, T>(url: URL, httpMethod: HTTPMethod<Input>, statusCodeRange: Range<Int>, cachePolicy: URLRequest.CachePolicy, timeoutInterval: TimeInterval, completionHandler: @escaping (Result<T, NetworkFetchingError>) -> Void) {
+//        let request: URLRequest
+//        switch Self.createRequest(url: url, httpMethod: httpMethod, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval) {
+//        case .success(let returnedrequest):
+//            request = returnedrequest
+//        case .failure(let error):
+//            completionHandler(.failure(error))
+//            return
+//        }
+//
+//        session.dataTask(with: request) { data, response, error in
+//            #if os(iOS)// || os(watchOS) //|| os(OSX)
+//            DispatchQueue.main.async {
+//                let result = Self.dataHandler(error: error, response: response, data: data, statusCodeRange: statusCodeRange)
+////                completionHandler(result)
+//            }
+//            //            #elseif
+//            #else
+//            let result = Self.dataHandler(error: error, response: response, data: data, statusCodeRange: statusCodeRange)
+//            completionHandler(result)
+//            #endif
+//        }
+//        .resume()
+//    }
+    
+    /// This method returns the raw data.
+    ///
+    /// If you are sure the returned data is json string. you can use `String(decoding: returnedData, as: UTF8.self)` to print out the json string for generator to generate model.
+    public func request<Input: Encodable>(
+        url: URL,
+        httpMethod: HTTPMethod<Input>,
+        statusCodeRange: Range<Int> = Range(200 ... 299),
+        cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy,
+        timeoutInterval: TimeInterval = 60.0,
+        completionHandler: @escaping (Result<Data, NetworkFetchingError>) -> Void
+    ) {
+        let request: URLRequest
+        switch Self.createRequest(url: url, httpMethod: httpMethod, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval) {
+        case .success(let returnedrequest):
+            request = returnedrequest
+        case .failure(let error):
+            completionHandler(.failure(error))
+            return
+        }
+        
+        session.dataTask(with: request) { data, response, error in
+            #if os(iOS)// || os(watchOS) //|| os(OSX)
+            DispatchQueue.main.async {
+                let result = Self.dataHandler(error: error, response: response, data: data, statusCodeRange: statusCodeRange)
+                completionHandler(result)
+            }
+            //            #elseif
+            #else
+            let result = Self.dataHandler(error: error, response: response, data: data, statusCodeRange: statusCodeRange)
+            completionHandler(result)
+            #endif
+        }
+        .resume()
+    }
+    
+    public func request<Output: Decodable, Input: Encodable>(
+        url: URL,
+        httpMethod: HTTPMethod<Input>,
+        statusCodeRange: Range<Int> = Range(200 ... 299),
+        cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy,
+        timeoutInterval: TimeInterval = 60.0,
+        completionHandler: @escaping (Result<Output, NetworkFetchingError>) -> Void
+    ) {
+        let request: URLRequest
+        switch Self.createRequest(url: url, httpMethod: httpMethod, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval) {
+        case .success(let returnedrequest):
+            request = returnedrequest
+        case .failure(let error):
+            completionHandler(.failure(error))
+            return
+        }
+        
+        session.dataTask(with: request) { data, response, error in
+            #if os(iOS)// || os(watchOS) //|| os(OSX)
+            DispatchQueue.main.async {
+                let result: Result<Output, NetworkFetchingError> = Self.decodableDataHandler(error: error, response: response, data: data, statusCodeRange: statusCodeRange)
+                completionHandler(result)
+            }
+            //            #elseif
+            #else
+            let result: Result<Output, NetworkFetchingError> = Self.decodableDataHandler(error: error, response: response, data: data, statusCodeRange: statusCodeRange)
+            completionHandler(result)
+            #endif
+        }
+        .resume()
     }
 }
 
