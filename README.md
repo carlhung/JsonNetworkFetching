@@ -36,7 +36,7 @@ There are 3 different `request` which only the `completionHandler` are different
     completionHandler: (Result<String, NetworkFetchingError>) -> Void
     completionHandler: (Result<Data, NetworkFetchingError>) -> Void
 
-When using, type system may tell you It can recognize which `request` you want to use. give it some hints:
+When using, type system may tell you It can't recognize which `request` you want to use. give it some hints:
 
     // replace SomeDecodable with any type conforms Decodable 
     shared.request(url: url, httpMethod:  SimpleJsonNetworkFetching.get(headers: headers)) { (result: Result<SomeDecodable, NetworkFetchingError>) in }

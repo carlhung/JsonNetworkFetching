@@ -43,9 +43,9 @@ final class SimpleJsonNetworkFetchingTests: XCTestCase {
             
             // postSearch
             guard let aPost = returnedData.district?.first?.search else { return }
-//            var finalResult: Result<CLMGPostSearch, NetworkFetchingError>?
-//            var finalResult: Result<Data, NetworkFetchingError>?
-            var finalResult: Result<String, NetworkFetchingError>?
+//            var finalResult: Result<CLMGPostSearch, NetworkFetchingError>? // works
+//            var finalResult: Result<Data, NetworkFetchingError>? // works
+            var finalResult: Result<String, NetworkFetchingError>? // works
             share.request(url: URL(string: "http://hkfp2.centanet.com" + "/mapproject/api/Post/Search")!,
                           httpMethod: .post(headers: headers, body: aPost)) { (result) in
                 finalResult = result
