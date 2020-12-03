@@ -129,7 +129,7 @@ public struct SimpleJsonNetworkFetching {
         .resume()
     }
     
-    /// The method can return `String` from the response.
+    /// The method can return `String` from the response's data.
     public func request<Input: Encodable>(
         url: URL,
         httpMethod: HTTPMethod<Input>,

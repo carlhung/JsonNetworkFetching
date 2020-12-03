@@ -35,15 +35,17 @@ final class SimpleJsonNetworkFetchingTests: XCTestCase {
         while finalResult == nil {}
         switch finalResult {
         case .failure(let error):
-            print("error: \(error)")
+            print("getPostAutoComplete error: \(error)")
         case .none:
-            print("none")
+            print("getPostAutoComplete none")
         case .success(let returnedData):
-            //            print("success: \(returnedData)")
+            //            print("getPostAutoComplete success: \(returnedData)")
             
             // postSearch
             guard let aPost = returnedData.district?.first?.search else { return }
-            var finalResult: Result<CLMGPostSearch, NetworkFetchingError>?
+//            var finalResult: Result<CLMGPostSearch, NetworkFetchingError>?
+//            var finalResult: Result<Data, NetworkFetchingError>?
+            var finalResult: Result<String, NetworkFetchingError>?
             share.request(url: URL(string: "http://hkfp2.centanet.com" + "/mapproject/api/Post/Search")!,
                           httpMethod: .post(headers: headers, body: aPost)) { (result) in
                 finalResult = result
@@ -51,11 +53,11 @@ final class SimpleJsonNetworkFetchingTests: XCTestCase {
             while finalResult == nil {}
             switch finalResult {
             case .failure(let error):
-                print("error: \(error)")
+                print("postSearch error: \(error)")
             case .none:
-                print("none")
+                print("postSearch none")
             case .success(let returnedData):
-                print("success: \(returnedData)")
+                print("postSearch success: \(returnedData)")
             }
         }
     }
