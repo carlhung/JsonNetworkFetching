@@ -5,18 +5,8 @@ import XCTest
     import FoundationNetworking
 #endif
 
-struct NewJsonFetch: JsonNetworkFetching {
-    static var shared = NewJsonFetch()
-
-    var session: URLSession
-
-    init(session: URLSession = URLSession.shared) {
-        self.session = session
-    }
-}
-
 final class SimpleJsonNetworkFetchingTests: XCTestCase {
-    let share: JsonNetworkFetching = NewJsonFetch.shared
+    let share: JsonNetworkFetching = SimpleJsonNetworkFetching.shared
 
     //    TransactionSearch
     //    func testExample() {
