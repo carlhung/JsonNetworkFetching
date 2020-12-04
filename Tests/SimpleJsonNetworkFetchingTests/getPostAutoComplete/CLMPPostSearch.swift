@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by carlhung on 3/12/2020.
 //
@@ -43,23 +43,25 @@ struct CLMPPostSearch: Encodable {
     var order: String?
     var mapLevelMappingType: String?
     var autoCompleteZoomToBottomLayer: Bool?
-    
+
     // MARK: - Range
+
     struct Range: Encodable {
         var min: Int?
         var max: Int?
     }
 
     // MARK: - GeoFilter
+
     struct GeoFilter: Encodable {
         var points: [String]?
         var zoom: Int?
     }
 
     // MARK: - GeoNearBy
+
     struct GeoNearBy: Encodable {
         var latLng: String?
         var radius: Int?
     }
 }
-

@@ -1,82 +1,81 @@
-/* 
-Copyright (c) 2020 Swift Models Generated from JSON powered by http://www.json4swift.com
+/*
+ Copyright (c) 2020 Swift Models Generated from JSON powered by http://www.json4swift.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-For support, please feel free to contact me at https://www.linkedin.com/in/syedabsar
+ For support, please feel free to contact me at https://www.linkedin.com/in/syedabsar
 
-*/
+ */
 
 import Foundation
-struct CLMGTransactionSearch : Codable {
-	let count : Int?
-	let data : [ReturnedData]?
+struct CLMGTransactionSearch: Codable {
+    let count: Int?
+    let data: [ReturnedData]?
 
-	enum CodingKeys: String, CodingKey {
+    enum CodingKeys: String, CodingKey {
+        case count
+        case data
+    }
 
-		case count = "count"
-		case data = "data"
-	}
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        count = try values.decodeIfPresent(Int.self, forKey: .count)
+        data = try values.decodeIfPresent([ReturnedData].self, forKey: .data)
+    }
 
-	init(from decoder: Decoder) throws {
-		let values = try decoder.container(keyedBy: CodingKeys.self)
-		count = try values.decodeIfPresent(Int.self, forKey: .count)
-		data = try values.decodeIfPresent([ReturnedData].self, forKey: .data)
-	}
-
-    struct ReturnedData : Codable {
-        let id : String?
-        let districtName : String?
-        let bigEstateName : String?
-        let estateName : String?
-        let buildingName : String?
-        let address : String?
-        let yAxis : String?
-        let xAxis : String?
-        let transactionPrice : Double?
-        let postType : String?
-        let typeCode : String?
-        let media : Media?
-        let floorPlans : [String]?
-        let nArea : Int?
-        let nUnitPrice : Int?
-        let regDate : String?
-        let insDate : String?
-        let dataSource : String?
-        let oldTransactionID : String?
-        let oldDataSource : String?
-        let detailUrl : String?
-        let scope : Scope?
-        let developer : [Developer]?
+    struct ReturnedData: Codable {
+        let id: String?
+        let districtName: String?
+        let bigEstateName: String?
+        let estateName: String?
+        let buildingName: String?
+        let address: String?
+        let yAxis: String?
+        let xAxis: String?
+        let transactionPrice: Double?
+        let postType: String?
+        let typeCode: String?
+        let media: Media?
+        let floorPlans: [String]?
+        let nArea: Int?
+        let nUnitPrice: Int?
+        let regDate: String?
+        let insDate: String?
+        let dataSource: String?
+        let oldTransactionID: String?
+        let oldDataSource: String?
+        let detailUrl: String?
+        let scope: Scope?
+        let developer: [Developer]?
 
         enum CodingKeys: String, CodingKey {
-            case id = "id"
-            case districtName = "districtName"
-            case bigEstateName = "bigEstateName"
-            case estateName = "estateName"
-            case buildingName = "buildingName"
-            case address = "address"
-            case yAxis = "yAxis"
-            case xAxis = "xAxis"
-            case transactionPrice = "transactionPrice"
-            case postType = "postType"
-            case typeCode = "typeCode"
-            case media = "media"
-            case floorPlans = "floorPlans"
-            case nArea = "nArea"
-            case nUnitPrice = "nUnitPrice"
-            case regDate = "regDate"
-            case insDate = "insDate"
-            case dataSource = "dataSource"
-            case oldTransactionID = "oldTransactionID"
-            case oldDataSource = "oldDataSource"
-            case detailUrl = "detailUrl"
-            case scope = "scope"
-            case developer = "developer"
+            case id
+            case districtName
+            case bigEstateName
+            case estateName
+            case buildingName
+            case address
+            case yAxis
+            case xAxis
+            case transactionPrice
+            case postType
+            case typeCode
+            case media
+            case floorPlans
+            case nArea
+            case nUnitPrice
+            case regDate
+            case insDate
+            case dataSource
+            case oldTransactionID
+            case oldDataSource
+            case detailUrl
+            case scope
+            case developer
         }
 
         init(from decoder: Decoder) throws {
@@ -106,25 +105,24 @@ struct CLMGTransactionSearch : Codable {
             developer = try values.decodeIfPresent([Developer].self, forKey: .developer)
         }
     }
-    
-    struct Media : Codable {
-        let hasPostImage : Bool?
-        let hasStreetView : Bool?
-        let hasSphere : Bool?
-        let hasVideo : Bool?
-        let hasVR : Bool?
-        let hasFloorPlan : Bool?
-        let hasUnitPlan : Bool?
+
+    struct Media: Codable {
+        let hasPostImage: Bool?
+        let hasStreetView: Bool?
+        let hasSphere: Bool?
+        let hasVideo: Bool?
+        let hasVR: Bool?
+        let hasFloorPlan: Bool?
+        let hasUnitPlan: Bool?
 
         enum CodingKeys: String, CodingKey {
-
-            case hasPostImage = "hasPostImage"
-            case hasStreetView = "hasStreetView"
-            case hasSphere = "hasSphere"
-            case hasVideo = "hasVideo"
-            case hasVR = "hasVR"
-            case hasFloorPlan = "hasFloorPlan"
-            case hasUnitPlan = "hasUnitPlan"
+            case hasPostImage
+            case hasStreetView
+            case hasSphere
+            case hasVideo
+            case hasVR
+            case hasFloorPlan
+            case hasUnitPlan
         }
 
         init(from decoder: Decoder) throws {
@@ -137,23 +135,21 @@ struct CLMGTransactionSearch : Codable {
             hasFloorPlan = try values.decodeIfPresent(Bool.self, forKey: .hasFloorPlan)
             hasUnitPlan = try values.decodeIfPresent(Bool.self, forKey: .hasUnitPlan)
         }
-
     }
-    
-    struct Developer : Codable {
-        let devid : String?
-        let pc_dev : String?
-        let pe_dev : String?
-        let pc_shortna : String?
-        let pe_shortna : String?
+
+    struct Developer: Codable {
+        let devid: String?
+        let pc_dev: String?
+        let pe_dev: String?
+        let pc_shortna: String?
+        let pe_shortna: String?
 
         enum CodingKeys: String, CodingKey {
-
-            case devid = "devid"
-            case pc_dev = "pc_dev"
-            case pe_dev = "pe_dev"
-            case pc_shortna = "pc_shortna"
-            case pe_shortna = "pe_shortna"
+            case devid
+            case pc_dev
+            case pe_dev
+            case pc_shortna
+            case pe_shortna
         }
 
         init(from decoder: Decoder) throws {
@@ -164,33 +160,31 @@ struct CLMGTransactionSearch : Codable {
             pc_shortna = try values.decodeIfPresent(String.self, forKey: .pc_shortna)
             pe_shortna = try values.decodeIfPresent(String.self, forKey: .pe_shortna)
         }
-
     }
-    
-    struct Scope : Codable {
-        let scp_mkt : String?
-        let terr : String?
-        let db_code : String?
-        let db : String?
-        let webScopeID : String?
-        let webScope : String?
-        let hma_id : String?
-        let hma : String?
-        let hmaDesc : String?
-        let hmaThumbnail : String?
+
+    struct Scope: Codable {
+        let scp_mkt: String?
+        let terr: String?
+        let db_code: String?
+        let db: String?
+        let webScopeID: String?
+        let webScope: String?
+        let hma_id: String?
+        let hma: String?
+        let hmaDesc: String?
+        let hmaThumbnail: String?
 
         enum CodingKeys: String, CodingKey {
-
-            case scp_mkt = "scp_mkt"
-            case terr = "terr"
-            case db_code = "db_code"
-            case db = "db"
-            case webScopeID = "webScopeID"
-            case webScope = "webScope"
-            case hma_id = "hma_id"
-            case hma = "hma"
-            case hmaDesc = "hmaDesc"
-            case hmaThumbnail = "hmaThumbnail"
+            case scp_mkt
+            case terr
+            case db_code
+            case db
+            case webScopeID
+            case webScope
+            case hma_id
+            case hma
+            case hmaDesc
+            case hmaThumbnail
         }
 
         init(from decoder: Decoder) throws {
@@ -206,6 +200,5 @@ struct CLMGTransactionSearch : Codable {
             hmaDesc = try values.decodeIfPresent(String.self, forKey: .hmaDesc)
             hmaThumbnail = try values.decodeIfPresent(String.self, forKey: .hmaThumbnail)
         }
-
     }
 }

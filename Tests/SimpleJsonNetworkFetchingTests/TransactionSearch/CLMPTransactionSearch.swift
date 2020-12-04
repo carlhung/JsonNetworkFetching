@@ -1,12 +1,14 @@
 //
 //  CLMPTransactionSearch.swift
-//  
+//
 //
 //  Created by carlhung on 3/12/2020.
 //
 
 import Foundation
+
 // MARK: - CLMPTransactionSearch
+
 struct CLMPTransactionSearch: Encodable {
     var postType: String?
     var memorial: [String]?
@@ -41,26 +43,30 @@ struct CLMPTransactionSearch: Encodable {
     var floors: [String]?
     var geoNearBy: CLMPGeoNearBy?
     var bedroomCountRange: CLMPRange?
-    
+
     // MARK: - CLMPRange
+
     struct CLMPRange: Encodable {
         var min: Int?
         var max: Int?
     }
 
     // MARK: - CLMPGeoFilter
+
     struct CLMPGeoFilter: Encodable {
         var points: [String]?
         var zoom: Int?
     }
 
     // MARK: - CLMPGeoNearBy
+
     struct CLMPGeoNearBy: Encodable {
         var latLng: String?
         var radius: Int?
     }
 
     // MARK: - CLMPStartEndDateTimeRange
+
     struct CLMPStartEndDateTimeRange: Encodable {
         var start: String?
         var end: String?
