@@ -27,12 +27,13 @@ final class SimpleJsonNetworkFetchingTests: XCTestCase {
     //    }
 
     //    getPostAutoComplete + postSearch
+
     func testExample() {
         var finalResult: Result<CLMGGetPostFilterOptions, NetworkFetchingError>?
         let post = CLMPPostSearch(keyword: "s")
         let headers = ["accept": "text/plain", "Content-Type": "application/json-patch+json"]
         share.request(url: URL(string: "http://hkfp2.centanet.com" + "/mapproject/api/Post/GetPostAutoComplete")!,
-                      httpMethod: .post(headers: headers, body: post)) { result in
+                      httpMethod: HTTPMethod.post(headers: headers, body: post)) { result in
             finalResult = result
         }
         while finalResult == nil {}
@@ -50,7 +51,7 @@ final class SimpleJsonNetworkFetchingTests: XCTestCase {
 //            var finalResult: Result<Data, NetworkFetchingError>? // works
             var finalResult: Result<String, NetworkFetchingError>? // works
             share.request(url: URL(string: "http://hkfp2.centanet.com" + "/mapproject/api/Post/Search")!,
-                          httpMethod: .post(headers: headers, body: aPost)) { result in
+                          httpMethod: HTTPMethod.post(headers: headers, body: aPost)) { result in
                 finalResult = result
             }
             while finalResult == nil {}

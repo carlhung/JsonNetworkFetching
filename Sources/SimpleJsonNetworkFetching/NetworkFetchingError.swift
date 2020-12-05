@@ -16,4 +16,6 @@ public enum NetworkFetchingError: Error {
     case invalidStatusCode(Int, responseData: Data?)
     case failedToExtractData
     case decodeError(Error, responseData: Data?)
+    case unknownMethod
+    case postRequestHasNoBody
 }
