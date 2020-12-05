@@ -49,7 +49,7 @@ When using, type system may tell you It can't recognize which `request` you want
 
 **Custom Request**
 
-This package is only support `get` and `set`, you may want to add methods:
+This package only supports `get` and `set`, you may want to add methods, create your own implementation by conforming `JsonNetworkFetching`:
 
     struct MyJSONFetch: JsonNetworkFetching {
         var session: URLSession
