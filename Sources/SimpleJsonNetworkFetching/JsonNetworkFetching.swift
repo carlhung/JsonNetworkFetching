@@ -133,7 +133,7 @@ public extension JsonNetworkFetching {
 
 public extension JsonNetworkFetching {
     /// when wanting to use `GET`, use this static method instead of case `get` of HTTPMethod.
-    static func get(headers: [String: String]) -> HTTPMethod<Stump> {
+    static func get(headers: [String: String] = [:]) -> HTTPMethod<Stump> {
         return HTTPMethod<Stump>.get(headers: headers)
     }
 

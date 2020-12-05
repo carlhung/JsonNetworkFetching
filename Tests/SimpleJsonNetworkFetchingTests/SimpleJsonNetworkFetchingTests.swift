@@ -8,24 +8,37 @@ import XCTest
 final class SimpleJsonNetworkFetchingTests: XCTestCase {
     let shared: JsonNetworkFetching = SimpleJsonNetworkFetching(session: URLSession.shared)
 
-    //    TransactionSearch
     func testExample() {
-        var finalResult: Result<CLMGTransactionSearch, NetworkFetchingError>?
-        let post = CLMPTransactionSearch(postType: "Sale", offset: 0, size: 10)
-        let headers = ["accept": "text/plain", "Content-Type": "application/json-patch+json"]
-        // _ = SimpleJsonNetworkFetching.get(headers:headers) // get request.
-        shared.request(url: URL(string: "http://hkfp2.centanet.com" + "/mapproject/api/Transaction/Search")!, httpMethod: .post(headers: headers, body: post)) { result in
-            finalResult = result
-        }
-        while finalResult == nil {}
-        switch finalResult {
-        case let .success(returnedData):
-            print("success: \(returnedData)")
-
-        case let .failure(error): print("error: \(error)")
-        case .none: print("none")
-        }
+        guard let url = URL(string: "https://api.openweathermap.org/data/2.5/weather?q=London&appid=8a372de9f49b4406cb9fd89dbd739801") else { print("wrong url");return }
+        
+        shared.request(url: url, httpMethod: SimpleJsonNetworkFetching.get(), completionHandler: { (result: Result<String, NetworkFetchingError>) in
+            switch result {
+                case .success(let returnedData):
+                print("success: \(returnedData)")
+                case .failure(let error):
+                print("failure: \(error)")
+            }
+        })
     }
+
+    //    TransactionSearch
+    // func testExample() {
+    //     var finalResult: Result<CLMGTransactionSearch, NetworkFetchingError>?
+    //     let post = CLMPTransactionSearch(postType: "Sale", offset: 0, size: 10)
+    //     let headers = ["accept": "text/plain", "Content-Type": "application/json-patch+json"]
+    //     // _ = SimpleJsonNetworkFetching.get(headers:headers) // get request.
+    //     shared.request(url: URL(string: "http://hkfp2.centanet.com" + "/mapproject/api/Transaction/Search")!, httpMethod: .post(headers: headers, body: post)) { result in
+    //         finalResult = result
+    //     }
+    //     while finalResult == nil {}
+    //     switch finalResult {
+    //     case let .success(returnedData):
+    //         print("success: \(returnedData)")
+
+    //     case let .failure(error): print("error: \(error)")
+    //     case .none: print("none")
+    //     }
+    // }
 
     //    getPostAutoComplete + postSearch
 
