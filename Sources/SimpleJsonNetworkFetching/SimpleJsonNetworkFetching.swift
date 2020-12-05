@@ -3,7 +3,7 @@ import Foundation
     import FoundationNetworking
 #endif
 
-public let defaultAvailableStatusCode = Set(200 ... 299)
+public let defaultStatusCodeSet = Set(200 ... 299)
 public let defaultURLRequestCachePolicy = URLRequest.CachePolicy.useProtocolCachePolicy
 public let defaultURLRequestTimeoutInterval: TimeInterval = 60.0
 
@@ -34,7 +34,7 @@ public extension JsonNetworkFetching {
     func request<T: Encodable>(
         url: URL,
         httpMethod: HTTPMethod<T>,
-        statusCodeSet: Set<Int> = defaultAvailableStatusCode,
+        statusCodeSet: Set<Int> = defaultStatusCodeSet,
         cachePolicy: URLRequest.CachePolicy = defaultURLRequestCachePolicy,
         timeoutInterval: TimeInterval = defaultURLRequestTimeoutInterval,
         completionHandler: @escaping (Result<Data, NetworkFetchingError>) -> Void
@@ -67,7 +67,7 @@ public extension JsonNetworkFetching {
     func request<T: Encodable>(
         url: URL,
         httpMethod: HTTPMethod<T>,
-        statusCodeSet: Set<Int> = defaultAvailableStatusCode,
+        statusCodeSet: Set<Int> = defaultStatusCodeSet,
         cachePolicy: URLRequest.CachePolicy = defaultURLRequestCachePolicy,
         timeoutInterval: TimeInterval = defaultURLRequestTimeoutInterval,
         completionHandler: @escaping (Result<String, NetworkFetchingError>) -> Void
@@ -107,7 +107,7 @@ public extension JsonNetworkFetching {
     func request<Output: Decodable, T: Encodable>(
         url: URL,
         httpMethod: HTTPMethod<T>,
-        statusCodeSet: Set<Int> = defaultAvailableStatusCode,
+        statusCodeSet: Set<Int> = defaultStatusCodeSet,
         cachePolicy: URLRequest.CachePolicy = defaultURLRequestCachePolicy,
         timeoutInterval: TimeInterval = defaultURLRequestTimeoutInterval,
         completionHandler: @escaping (Result<Output, NetworkFetchingError>) -> Void
