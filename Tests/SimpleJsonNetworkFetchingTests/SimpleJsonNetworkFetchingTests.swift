@@ -36,6 +36,7 @@ final class SimpleJsonNetworkFetchingTests: XCTestCase {
                       httpMethod: HTTPMethod.post(headers: headers, body: post)) { result in
             finalResult = result
         }
+
         while finalResult == nil {}
         switch finalResult {
         case let .failure(error):
@@ -48,12 +49,13 @@ final class SimpleJsonNetworkFetchingTests: XCTestCase {
             // postSearch
             guard let aPost = returnedData.district?.first?.search else { return }
 //            var finalResult: Result<CLMGPostSearch, NetworkFetchingError>? // works
-//            var finalResult: Result<Data, NetworkFetchingError>? // works
-            var finalResult: Result<String, NetworkFetchingError>? // works
+            var finalResult: Result<Data, NetworkFetchingError>? // works
+            // var finalResult: Result<String, NetworkFetchingError>? // works
             share.request(url: URL(string: "http://hkfp2.centanet.com" + "/mapproject/api/Post/Search")!,
                           httpMethod: HTTPMethod.post(headers: headers, body: aPost)) { result in
                 finalResult = result
             }
+            // SimpleJsonNetworkFetching.get(headers: [String : String])
             while finalResult == nil {}
             switch finalResult {
             case let .failure(error):

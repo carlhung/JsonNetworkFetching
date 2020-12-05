@@ -28,8 +28,6 @@ public struct SimpleJsonNetworkFetching: JsonNetworkFetching {
 
 // MARK: - default values
 
-public extension SimpleJsonNetworkFetching {}
-
 // MARK: - all requests
 
 public extension JsonNetworkFetching {
@@ -155,15 +153,16 @@ public extension JsonNetworkFetching {
                                                  timeoutInterval: TimeInterval) -> Result<URLRequest, NetworkFetchingError>
     {
         var request = URLRequest(url: url, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval)
+        let get = "GET", post = "POST"
+
         switch httpMethod.method {
-        case "GET", "POST":
+        case get, post:
             request.httpMethod = httpMethod.method
         default:
             return .failure(.unknownMethod)
         }
 
-        httpMethod.headers.forEach { request.setValue($0.value, forHTTPHeaderField: $0.key) }
-        if type(of: httpMethod).post == httpMethod.method {
+        if httpMethod.method == post {
             guard let body = httpMethod.body else {
                 return .failure(.postRequestHasNoBody)
             }
@@ -174,6 +173,9 @@ public extension JsonNetworkFetching {
                 return .failure(.encodeError(error))
             }
         }
+
+        httpMethod.headers.forEach { request.setValue($0.value, forHTTPHeaderField: $0.key) }
+
         return .success(request)
     }
 
