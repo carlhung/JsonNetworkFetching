@@ -10,9 +10,9 @@ you can try adding/testing on other OSs.
 
 **Usage**
 
-use default `URLSession.shared`:
-`let shared = SimpleJsonNetworkFetching.shared`
+if you want to use default `URLSession.shared`:
 
+    let shared = SimpleJsonNetworkFetching(session: URLSession.shared)
     shared.request(url: url, httpMethod: method) { (result) in
         switch result {
         case .failure(let error)): break
@@ -46,6 +46,43 @@ When using, type system may tell you It can't recognize which `request` you want
     
     // returning raw data
     shared.request(url: url, httpMethod:  SimpleJsonNetworkFetching.get(headers: headers)) { (result: Result<Data, NetworkFetchingError>) in }
+
+**Custom Request**
+
+This package is only support `get` and `set`, you may want to add methods:
+
+    struct MyJSONFetch: JsonNetworkFetching {
+        var session: URLSession
+
+        init(session: URLSession) {
+            self.session = session
+        }
+    }
+
+create your custom request by implementing `createRequest`:
+
+    extension MyJSONFetch {
+	    // this will override the original createRequest
+        static func createRequest<T: Encodable>(url: URL,
+                                                httpMethod: HTTPMethod<T>,
+                                                cachePolicy: URLRequest.CachePolicy,
+                                                timeoutInterval: TimeInterval) -> Result<URLRequest, NetworkFetchingError>
+        {
+            var request = URLRequest(url: url, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval)
+            print("custom createRequest")
+            if httpMethod.method == "DELETE" {
+                request.httpMethod = httpMethod.method
+                return .success(request)
+            } else {
+                return .failure(.unknownMethod)
+            }
+        }
+    }
+	
+use your own custom `MyJSONFetch`:
+
+    let fetch: JsonNetworkFetching = MyJSONFetch(session: URLSession.shared)
+	fetch.request(url: URL(string: "http://www.xxx.com")!, httpMethod: HTTPMethod<Stump>.init(method: "DELETE", headers: [:], body: nil)) { (_: Result<Data, NetworkFetchingError>) in /* .... */ }
 
 **Installation**
 
