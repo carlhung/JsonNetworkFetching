@@ -7,6 +7,7 @@
 
 import Foundation
 
+// // https://stackoverflow.com/questions/30543806/get-progress-from-datataskwithurl-in-swift/45290601
 protocol DownloadTask {
 
 //   var completionHandler: ResultType<Data>.Completion? { get set }
