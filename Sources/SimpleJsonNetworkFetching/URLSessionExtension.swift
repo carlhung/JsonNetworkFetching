@@ -6,6 +6,9 @@
 //
 
 import Foundation
+#if os(Linux)
+    import FoundationNetworking
+#endif
 
 public extension URLSession {
     func request<Output: Decodable, Input: Encodable>(
@@ -43,6 +46,7 @@ public extension URLSession {
         httpMethod.headers.forEach { request.setValue($0.value, forHTTPHeaderField: $0.key) }
 
         self.dataTask(with: request) { data, response, error in
+            
             DispatchQueue.main.async {
                 guard error == nil else {
                     completionHandler(.failure(.networkResponseError(message: error!)))
@@ -66,7 +70,6 @@ public extension URLSession {
                 } catch {
                     completionHandler(.failure(.decodeError(error, responseData: data)))
                 }
-                
             }
         }
         .resume()

@@ -7,9 +7,11 @@ public let defaultStatusCodeSet = Set(200 ... 299)
 public let defaultURLRequestCachePolicy = URLRequest.CachePolicy.useProtocolCachePolicy
 public let defaultURLRequestTimeoutInterval: TimeInterval = 60.0
 
-public protocol JsonNetworkFetching {
+public protocol JsonNetworkFetching: AnyObject {
     var session: URLSession { get set }
     init(session: URLSession)
+    var downloadTasks: [GenericDownloadTask] { get set }
+    func download(request: URLRequest) -> DownloadTask
     func request<T: Encodable>(url: URL, httpMethod: HTTPMethod<T>, statusCodeSet: Set<Int>, cachePolicy: URLRequest.CachePolicy, timeoutInterval: TimeInterval, completionHandler: @escaping (Result<Data, NetworkFetchingError>) -> Void)
     func request<T: Encodable>(url: URL, httpMethod: HTTPMethod<T>, statusCodeSet: Set<Int>, cachePolicy: URLRequest.CachePolicy, timeoutInterval: TimeInterval, completionHandler: @escaping (Result<String, NetworkFetchingError>) -> Void)
     func request<Output: Decodable, T: Encodable>(url: URL, httpMethod: HTTPMethod<T>, statusCodeSet: Set<Int>, cachePolicy: URLRequest.CachePolicy, timeoutInterval: TimeInterval, completionHandler: @escaping (Result<Output, NetworkFetchingError>) -> Void)
@@ -127,6 +129,13 @@ public extension JsonNetworkFetching {
         }
         .resume()
     }
+
+    func download(request: URLRequest) -> DownloadTask {
+        let task = session.dataTask(with: request)
+        let downloadTask = GenericDownloadTask(task: task)
+        downloadTasks.append(downloadTask)
+        return downloadTask
+   }
 }
 
 // MARK: - All Static Helpers
@@ -199,4 +208,43 @@ public extension JsonNetworkFetching {
         }
         return .success(data)
     }
+}
+
+public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
+
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse,
+                   completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+
+      guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
+         completionHandler(.cancel)
+         return
+      }
+      task.expectedContentLength = response.expectedContentLength
+      completionHandler(.allow)
+   }
+
+   func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+      guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
+         return
+      }
+      task.buffer.append(data)
+      let percentageDownloaded = Double(task.buffer.count) / Double(task.expectedContentLength)
+      DispatchQueue.main.async {
+         task.progressHandler?(percentageDownloaded)
+      }
+   }
+
+   func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+    guard let index = downloadTasks.firstIndex(where: { $0.task == task }) else {
+         return
+      }
+      let task = downloadTasks.remove(at: index)
+      DispatchQueue.main.async {
+         if let e = error {
+            task.completionHandler?(.failure(e))
+         } else {
+            task.completionHandler?(.success(task.buffer))
+         }
+      }
+   }
 }
