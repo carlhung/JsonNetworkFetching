@@ -3,11 +3,10 @@ import Foundation
     import FoundationNetworking
 #endif
 
-
-public class SimpleJsonNetworkFetching: NSObject, JsonNetworkFetching, URLSessionDataDelegate {
+public class SimpleJsonNetworkFetching: NetworkFetchAndDownload {
     public var downloadTasks: [GenericDownloadTask] = []
     public var session: URLSession
-    required public init(session: URLSession) {
+    public required init(session: URLSession) {
         self.session = session
     }
 }

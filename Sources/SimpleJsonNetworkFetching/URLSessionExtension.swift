@@ -1,6 +1,6 @@
 //
 //  URLSessionExtension.swift
-//  
+//
 //
 //  Created by Carl Hung on 10/12/2020.
 //
@@ -45,8 +45,8 @@ public extension URLSession {
 
         httpMethod.headers.forEach { request.setValue($0.value, forHTTPHeaderField: $0.key) }
 
-        self.dataTask(with: request) { data, response, error in
-            
+        dataTask(with: request) { data, response, error in
+
             DispatchQueue.main.async {
                 guard error == nil else {
                     completionHandler(.failure(.networkResponseError(message: error!)))

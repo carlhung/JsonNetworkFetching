@@ -7,6 +7,8 @@ public let defaultStatusCodeSet = Set(200 ... 299)
 public let defaultURLRequestCachePolicy = URLRequest.CachePolicy.useProtocolCachePolicy
 public let defaultURLRequestTimeoutInterval: TimeInterval = 60.0
 
+public typealias NetworkFetchAndDownload = NSObject & JsonNetworkFetching & URLSessionDataDelegate
+
 public protocol JsonNetworkFetching: AnyObject {
     var session: URLSession { get set }
     init(session: URLSession)
@@ -210,41 +212,55 @@ public extension JsonNetworkFetching {
     }
 }
 
+// extension JsonNetworkFetching: NSObject where Self: URLSessionDataDelegate {}
+
 public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
 
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse,
                    completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
 
-      guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
-         completionHandler(.cancel)
-         return
-      }
-      task.expectedContentLength = response.expectedContentLength
-      completionHandler(.allow)
-   }
+        guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
+            completionHandler(.cancel)
+            return
+        }
+        task.expectedContentLength = response.expectedContentLength
+        completionHandler(.allow)
+    }
 
-   func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
-      guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
-         return
-      }
-      task.buffer.append(data)
-      let percentageDownloaded = Double(task.buffer.count) / Double(task.expectedContentLength)
-      DispatchQueue.main.async {
-         task.progressHandler?(percentageDownloaded)
-      }
-   }
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
+            return
+        }
+        task.buffer.append(data)
+        let percentageDownloaded = Double(task.buffer.count) / Double(task.expectedContentLength)
+        #if os(iOS)
+        DispatchQueue.main.async {
+            task.progressHandler?(percentageDownloaded)
+        }
+        #else
+        task.progressHandler?(percentageDownloaded)
+        #endif
+    }
 
-   func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-    guard let index = downloadTasks.firstIndex(where: { $0.task == task }) else {
-         return
-      }
-      let task = downloadTasks.remove(at: index)
-      DispatchQueue.main.async {
-         if let e = error {
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        guard let index = downloadTasks.firstIndex(where: { $0.task == task }) else {
+            return
+        }
+        let task = downloadTasks.remove(at: index)
+        #if os(iOS)
+        DispatchQueue.main.async {
+            if let e = error {
+                task.completionHandler?(.failure(e))
+            } else {
+                task.completionHandler?(.success(task.buffer))
+            }
+        }
+        #else
+        if let e = error {
             task.completionHandler?(.failure(e))
-         } else {
+        } else {
             task.completionHandler?(.success(task.buffer))
-         }
-      }
-   }
+        }
+        #endif
+    }
 }
