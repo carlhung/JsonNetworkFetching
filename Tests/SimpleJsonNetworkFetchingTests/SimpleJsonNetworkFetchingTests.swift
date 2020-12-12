@@ -6,29 +6,35 @@ import XCTest
 #endif
 
 final class SimpleJsonNetworkFetchingTests: XCTestCase {
+
     // let shared: JsonNetworkFetching = SimpleJsonNetworkFetching(session: URLSession.shared)
     let shared: JsonNetworkFetching = SimpleJsonNetworkFetching(urlConfig: URLSessionConfiguration.default)
 
-    // https://swift.org/builds/swift-5.3.1-release/ubuntu2004/swift-5.3.1-RELEASE/swift-5.3.1-RELEASE-ubuntu20.04.tar.gz
+    // // https://swift.org/builds/swift-5.3.1-release/ubuntu2004/swift-5.3.1-RELEASE/swift-5.3.1-RELEASE-ubuntu20.04.tar.gz
     func testExample() {
         var isNotFinish = true
         guard let url = URL(string: "https://github.com/apple/sourcekit-lsp/archive/main.zip") else {
             return
         }
-        var request = URLRequest(url: url, cachePolicy: defaultURLRequestCachePolicy, timeoutInterval: defaultURLRequestTimeoutInterval)
-        request.httpMethod = "GET"
-        var task = shared.download(request: request)
-        task?.completionHandler = {
-            switch $0 {
-            case .success(let data):
-            print("got the data")
-            case .failure(let error):
-            print("error: \(error)")
-            }
+
+        switch shared.download(url: url, httpMethod: SimpleJsonNetworkFetching.get()) {
+        case .failure(let error):
+            print(error)
             isNotFinish = false
-        }
-        task?.progressHandler = {
-            print("progress: \($0)")
+        case .success(var task):
+            task.completionHandler = {
+                switch $0 {
+                case .success(let data):
+                    print("got the data")
+                case .failure(let error):
+                    print("error: \(error)")
+                }
+                isNotFinish = false
+            }
+            task.progressHandler = {
+                print("progress: \($0)")
+            }
+            task.resume()
         }
         while isNotFinish {}
     }

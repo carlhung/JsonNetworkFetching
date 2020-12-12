@@ -7,8 +7,6 @@
 
 import Foundation
 
-// MARK: -
-
 public enum NetworkFetchingError: Error {
     case encodeError(Error)
     case networkResponseError(message: Error)
@@ -18,4 +16,5 @@ public enum NetworkFetchingError: Error {
     case decodeError(Error, responseData: Data?)
     case unknownMethod
     case postRequestHasNoBody
+    case nilSession
 }
