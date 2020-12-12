@@ -2,29 +2,34 @@ import Foundation
 #if os(Linux)
     import FoundationNetworking
 #endif
-
-public class SimpleJsonNetworkFetching: NetworkFetchAndDownload {
-    public var downloadTasks: [GenericDownloadTask] = []
-    public var session: URLSession
-    public required init(session: URLSession) {
-        self.session = session
+// NetworkFetchAndDownload
+public class SimpleJsonNetworkFetching: NetworkFetchAndDownload {//NSObject & JsonNetworkFetching  {
+    public required convenience init(urlConfig: URLSessionConfiguration) {
+        self.init()
+        self.session = URLSession(configuration: urlConfig, delegate: self, delegateQueue: nil)
     }
+
+// public class SimpleJsonNetworkFetching: NetworkFetchAndDownload  {
+    public var session: URLSession?
+    public var downloadTasks: [GenericDownloadTask] = []
+    required public override init() {}
 }
 
 // extension SimpleJsonNetworkFetching: URLSessionDataDelegate {
 
 //     public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse,
 //                    completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
-
-//       guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
-//          completionHandler(.cancel)
-//          return
-//       }
+//         print("urlSession didReceive")
+//         guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
+//             completionHandler(.cancel)
+//             return
+//         }
 //       task.expectedContentLength = response.expectedContentLength
 //       completionHandler(.allow)
 //    }
 
 //     public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+//         print("urlSession adding")
 //       guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
 //          return
 //       }
@@ -36,6 +41,7 @@ public class SimpleJsonNetworkFetching: NetworkFetchAndDownload {
 //    }
 
 //     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+//         print("urlSession error")
 //     guard let index = downloadTasks.firstIndex(where: { $0.task == task }) else {
 //          return
 //       }

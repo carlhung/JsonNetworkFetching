@@ -6,25 +6,50 @@ import XCTest
 #endif
 
 final class SimpleJsonNetworkFetchingTests: XCTestCase {
-    let shared: JsonNetworkFetching = SimpleJsonNetworkFetching(session: URLSession.shared)
+    // let shared: JsonNetworkFetching = SimpleJsonNetworkFetching(session: URLSession.shared)
+    let shared: JsonNetworkFetching = SimpleJsonNetworkFetching(urlConfig: URLSessionConfiguration.default)
 
+    // https://swift.org/builds/swift-5.3.1-release/ubuntu2004/swift-5.3.1-RELEASE/swift-5.3.1-RELEASE-ubuntu20.04.tar.gz
     func testExample() {
-        guard let url = URL(string: "https://api.openweathermap.org/data/2.5/weather?q=London&appid=8a372de9f49b4406cb9fd89dbd739801") else { print("wrong url"); return }
-        var finalResult: Result<WeatherModel, NetworkFetchingError>?
-        shared.request(url: url, httpMethod: SimpleJsonNetworkFetching.get(), completionHandler: { result in
-            finalResult = result
-        })
-        while finalResult == nil {}
-
-        switch finalResult {
-        case let .success(returnedData):
-            print("success: \(returnedData)")
-        case let .failure(error):
-            print("failure: \(error)")
-        case .none:
-            print("none")
+        var isNotFinish = true
+        guard let url = URL(string: "https://github.com/apple/sourcekit-lsp/archive/main.zip") else {
+            return
         }
+        var request = URLRequest(url: url, cachePolicy: defaultURLRequestCachePolicy, timeoutInterval: defaultURLRequestTimeoutInterval)
+        request.httpMethod = "GET"
+        var task = shared.download(request: request)
+        task?.completionHandler = {
+            switch $0 {
+            case .success(let data):
+            print("got the data")
+            case .failure(let error):
+            print("error: \(error)")
+            }
+            isNotFinish = false
+        }
+        task?.progressHandler = {
+            print("progress: \($0)")
+        }
+        while isNotFinish {}
     }
+
+    // func testExample() {
+    //     guard let url = URL(string: "https://api.openweathermap.org/data/2.5/weather?q=London&appid=8a372de9f49b4406cb9fd89dbd739801") else { print("wrong url"); return }
+    //     var finalResult: Result<WeatherModel, NetworkFetchingError>?
+    //     shared.request(url: url, httpMethod: SimpleJsonNetworkFetching.get(), completionHandler: { result in
+    //         finalResult = result
+    //     })
+    //     while finalResult == nil {}
+
+    //     switch finalResult {
+    //     case let .success(returnedData):
+    //         print("success: \(returnedData)")
+    //     case let .failure(error):
+    //         print("failure: \(error)")
+    //     case .none:
+    //         print("none")
+    //     }
+    // }
 
     //    TransactionSearch
     // func testExample() {

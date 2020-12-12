@@ -10,10 +10,12 @@ public let defaultURLRequestTimeoutInterval: TimeInterval = 60.0
 public typealias NetworkFetchAndDownload = NSObject & JsonNetworkFetching & URLSessionDataDelegate
 
 public protocol JsonNetworkFetching: AnyObject {
-    var session: URLSession { get set }
+    var session: URLSession? { get set }
     init(session: URLSession)
+    init()
+    init(urlConfig: URLSessionConfiguration)
     var downloadTasks: [GenericDownloadTask] { get set }
-    func download(request: URLRequest) -> DownloadTask
+    func download(request: URLRequest) -> DownloadTask?
     func request<T: Encodable>(url: URL, httpMethod: HTTPMethod<T>, statusCodeSet: Set<Int>, cachePolicy: URLRequest.CachePolicy, timeoutInterval: TimeInterval, completionHandler: @escaping (Result<Data, NetworkFetchingError>) -> Void)
     func request<T: Encodable>(url: URL, httpMethod: HTTPMethod<T>, statusCodeSet: Set<Int>, cachePolicy: URLRequest.CachePolicy, timeoutInterval: TimeInterval, completionHandler: @escaping (Result<String, NetworkFetchingError>) -> Void)
     func request<Output: Decodable, T: Encodable>(url: URL, httpMethod: HTTPMethod<T>, statusCodeSet: Set<Int>, cachePolicy: URLRequest.CachePolicy, timeoutInterval: TimeInterval, completionHandler: @escaping (Result<Output, NetworkFetchingError>) -> Void)
@@ -45,7 +47,7 @@ public extension JsonNetworkFetching {
             return
         }
 
-        session.dataTask(with: request) { data, response, error in
+        session?.dataTask(with: request) { data, response, error in
             #if os(iOS) // || os(watchOS) //|| os(OSX)
                 DispatchQueue.main.async {
                     let result = Self.dataHandler(error: error, response: response, data: data, statusCodeSet: statusCodeSet)
@@ -78,7 +80,7 @@ public extension JsonNetworkFetching {
             return
         }
 
-        session.dataTask(with: request) { data, response, error in
+        session?.dataTask(with: request) { data, response, error in
             #if os(iOS)
                 DispatchQueue.main.async {
                     let result = Self.dataHandler(error: error, response: response, data: data, statusCodeSet: statusCodeSet)
@@ -118,7 +120,7 @@ public extension JsonNetworkFetching {
             return
         }
 
-        session.dataTask(with: request) { data, response, error in
+        session?.dataTask(with: request) { data, response, error in
             #if os(iOS)
                 DispatchQueue.main.async {
                     let result: Result<Output, NetworkFetchingError> = Self.decodableDataHandler(error: error, response: response, data: data, statusCodeSet: statusCodeSet)
@@ -132,10 +134,14 @@ public extension JsonNetworkFetching {
         .resume()
     }
 
-    func download(request: URLRequest) -> DownloadTask {
-        let task = session.dataTask(with: request)
+    func download(request: URLRequest) -> DownloadTask? {
+        guard let task = session?.dataTask(with: request) else {
+            return nil
+        }
+        // let task = session?.dataTask(with: request)
         let downloadTask = GenericDownloadTask(task: task)
         downloadTasks.append(downloadTask)
+        print("started download")
         return downloadTask
    }
 }
@@ -143,6 +149,12 @@ public extension JsonNetworkFetching {
 // MARK: - All Static Helpers
 
 public extension JsonNetworkFetching {
+
+    init(session: URLSession) {
+        self.init()
+        self.session = session
+    }
+
     /// when wanting to use `GET`, use this static method instead of case `get` of HTTPMethod.
     static func get(headers: [String: String] = [:]) -> HTTPMethod<Stump> {
         return HTTPMethod<Stump>.get(headers: headers)
@@ -216,9 +228,14 @@ public extension JsonNetworkFetching {
 
 public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
 
+    init(urlConfig: URLSessionConfiguration) {
+        self.init()
+        self.session = URLSession(configuration: urlConfig, delegate: self, delegateQueue: nil)
+    }
+
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse,
                    completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
-
+        print("didReceive")
         guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
             completionHandler(.cancel)
             return
@@ -228,6 +245,7 @@ public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
     }
 
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        print("urlSession: adding")
         guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
             return
         }
@@ -243,6 +261,7 @@ public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
     }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        print("urlSession error")
         guard let index = downloadTasks.firstIndex(where: { $0.task == task }) else {
             return
         }

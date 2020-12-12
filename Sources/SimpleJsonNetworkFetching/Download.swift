@@ -13,7 +13,6 @@ import Foundation
 // // https://stackoverflow.com/questions/30543806/get-progress-from-datataskwithurl-in-swift/45290601
 
 public protocol DownloadTask {
-    //   var completionHandler: ResultType<Data>.Completion? { get set }
     var completionHandler: Result<Data, Error>.Completion? { get set }
     var progressHandler: ((Double) -> Void)? { get set }
 
@@ -25,15 +24,6 @@ public protocol DownloadTask {
 public extension Result {
     typealias Completion = (Result<Success, Failure>) -> Void
 }
-
-// public enum ResultType<T> {
-//
-//   public typealias Completion = (ResultType<T>) -> Void
-//
-//   case success(T)
-//   case failure(Swift.Error)
-//
-// }
 
 public class GenericDownloadTask {
     public var completionHandler: Result<Data, Error>.Completion?
@@ -66,64 +56,64 @@ extension GenericDownloadTask: DownloadTask {
     }
 }
 
-final class DownloadService: NSObject {
-    private var session: URLSession!
-    private var downloadTasks = [GenericDownloadTask]()
+// final class DownloadService: NSObject {
+//     private var session: URLSession!
+//     private var downloadTasks = [GenericDownloadTask]()
 
-    public static let shared = DownloadService()
+//     public static let shared = DownloadService()
 
-    override private init() {
-        super.init()
-        let configuration = URLSessionConfiguration.default
-        session = URLSession(configuration: configuration,
-                             delegate: self, delegateQueue: nil)
-    }
+//     override private init() {
+//         super.init()
+//         let configuration = URLSessionConfiguration.default
+//         session = URLSession(configuration: configuration,
+//                              delegate: self, delegateQueue: nil)
+//     }
 
-    func download(request: URLRequest) -> DownloadTask {
-        let task = session.dataTask(with: request)
-        let downloadTask = GenericDownloadTask(task: task)
-        downloadTasks.append(downloadTask)
-        return downloadTask
-    }
-}
+//     func download(request: URLRequest) -> DownloadTask {
+//         let task = session.dataTask(with: request)
+//         let downloadTask = GenericDownloadTask(task: task)
+//         downloadTasks.append(downloadTask)
+//         return downloadTask
+//     }
+// }
 
-extension DownloadService: URLSessionDataDelegate {
-    func urlSession(_: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse,
-                    completionHandler: @escaping (URLSession.ResponseDisposition) -> Void)
-    {
-        guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
-            completionHandler(.cancel)
-            return
-        }
-        task.expectedContentLength = response.expectedContentLength
-        completionHandler(.allow)
-    }
+// extension DownloadService: URLSessionDataDelegate {
+//     func urlSession(_: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse,
+//                     completionHandler: @escaping (URLSession.ResponseDisposition) -> Void)
+//     {
+//         guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
+//             completionHandler(.cancel)
+//             return
+//         }
+//         task.expectedContentLength = response.expectedContentLength
+//         completionHandler(.allow)
+//     }
 
-    func urlSession(_: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
-        guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
-            return
-        }
-        task.buffer.append(data)
-        let percentageDownloaded = Double(task.buffer.count) / Double(task.expectedContentLength)
-        DispatchQueue.main.async {
-            task.progressHandler?(percentageDownloaded)
-        }
-    }
+//     func urlSession(_: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+//         guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
+//             return
+//         }
+//         task.buffer.append(data)
+//         let percentageDownloaded = Double(task.buffer.count) / Double(task.expectedContentLength)
+//         DispatchQueue.main.async {
+//             task.progressHandler?(percentageDownloaded)
+//         }
+//     }
 
-    func urlSession(_: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-        guard let index = downloadTasks.firstIndex(where: { $0.task == task }) else {
-            return
-        }
-        let task = downloadTasks.remove(at: index)
-        DispatchQueue.main.async {
-            if let e = error {
-                task.completionHandler?(.failure(e))
-            } else {
-                task.completionHandler?(.success(task.buffer))
-            }
-        }
-    }
-}
+//     func urlSession(_: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+//         guard let index = downloadTasks.firstIndex(where: { $0.task == task }) else {
+//             return
+//         }
+//         let task = downloadTasks.remove(at: index)
+//         DispatchQueue.main.async {
+//             if let e = error {
+//                 task.completionHandler?(.failure(e))
+//             } else {
+//                 task.completionHandler?(.success(task.buffer))
+//             }
+//         }
+//     }
+// }
 
 // MARK: - Usage: Example how to run two download tasks in parallel (macOS App):
 
