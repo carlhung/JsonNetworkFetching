@@ -6,7 +6,6 @@ import XCTest
 #endif
 
 final class SimpleJsonNetworkFetchingTests: XCTestCase {
-
     // let shared: JsonNetworkFetching = SimpleJsonNetworkFetching(session: URLSession.shared)
     let shared: JsonNetworkFetching = SimpleJsonNetworkFetching(urlConfig: URLSessionConfiguration.default)
 
@@ -17,25 +16,45 @@ final class SimpleJsonNetworkFetchingTests: XCTestCase {
             return
         }
 
-        switch shared.download(url: url, httpMethod: SimpleJsonNetworkFetching.get()) {
-        case .failure(let error):
-            print(error)
+        // switch shared.download(url: url, httpMethod: SimpleJsonNetworkFetching.get()) {
+        // case .failure(let error):
+        //     print(error)
+        //     isNotFinish = false
+        // case .success(var task):
+        //     task.completionHandler = {
+        //         switch $0 {
+        //         case .success(let data):
+        //             print("got the data")
+        //         case .failure(let error):
+        //             print("error: \(error)")
+        //         }
+        //         isNotFinish = false
+        //     }
+        //     task.progressHandler = {
+        //         print("progress: \($0)")
+        //     }
+        //     task.resume()
+        // }
+
+        let result = shared.download(url: url, httpMethod: SimpleJsonNetworkFetching.get()) {
+            switch $0 {
+            case let .success(data):
+                print("got the data")
+            case let .failure(error):
+                print("error: \(error)")
+            }
             isNotFinish = false
-        case .success(var task):
-            task.completionHandler = {
-                switch $0 {
-                case .success(let data):
-                    print("got the data")
-                case .failure(let error):
-                    print("error: \(error)")
-                }
-                isNotFinish = false
-            }
-            task.progressHandler = {
-                print("progress: \($0)")
-            }
-            task.resume()
+        } progressHandler: {
+            print("progress: \($0)")
         }
+
+        switch result {
+        case let .failure(error):
+            print(error)
+        case let .success(task):
+            print("returned task")
+        }
+
         while isNotFinish {}
     }
 
