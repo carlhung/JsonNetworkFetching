@@ -4,6 +4,7 @@ import Foundation
 #endif
 
 public class SimpleJsonNetworkFetching: NetworkFetchAndDownload {
+
     public var session: URLSession?
     public var downloadTasks: [GenericDownloadTask] = []
 

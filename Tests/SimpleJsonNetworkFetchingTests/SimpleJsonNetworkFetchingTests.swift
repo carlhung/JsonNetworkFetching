@@ -16,26 +16,6 @@ final class SimpleJsonNetworkFetchingTests: XCTestCase {
             return
         }
 
-        // switch shared.download(url: url, httpMethod: SimpleJsonNetworkFetching.get()) {
-        // case .failure(let error):
-        //     print(error)
-        //     isNotFinish = false
-        // case .success(var task):
-        //     task.completionHandler = {
-        //         switch $0 {
-        //         case .success(let data):
-        //             print("got the data")
-        //         case .failure(let error):
-        //             print("error: \(error)")
-        //         }
-        //         isNotFinish = false
-        //     }
-        //     task.progressHandler = {
-        //         print("progress: \($0)")
-        //     }
-        //     task.resume()
-        // }
-
         let result = shared.download(url: url, httpMethod: SimpleJsonNetworkFetching.get()) {
             switch $0 {
             case let .success(data):

@@ -7,7 +7,7 @@ public let defaultStatusCodeSet = Set(200 ... 299)
 public let defaultURLRequestCachePolicy = URLRequest.CachePolicy.useProtocolCachePolicy
 public let defaultURLRequestTimeoutInterval: TimeInterval = 60.0
 
-public typealias NetworkFetchAndDownload = NSObject & JsonNetworkFetching & URLSessionDataDelegate // & URLSessionDownloadDelegate
+public typealias NetworkFetchAndDownload = JsonNetworkFetching & URLSessionDataDelegate & NSObject//URLSessionDownloadDelegate
 
 public protocol JsonNetworkFetching: AnyObject {
     var session: URLSession? { get set }
@@ -295,9 +295,13 @@ public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
     }
 }
 
-// public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
-//     init(urlConfig: URLSessionConfiguration) {
-//         self.init()
-//         self.session = URLSession(configuration: urlConfig, delegate: self, delegateQueue: nil)
+// https://medium.com/swlh/tracking-download-progress-with-urlsessiondownloaddelegate-5174147009f
+// public extension JsonNetworkFetching where Self: URLSessionDownloadDelegate  {
+//     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+
 //     }
+
+//     // func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) { }
+    
+//     // func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64) { }
 // }
