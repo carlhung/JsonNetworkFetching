@@ -21,13 +21,12 @@ public extension URLSession {
     ) {
         var request = URLRequest(url: url, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval)
 
-        switch httpMethod.method {
-        case "GET", "POST":
-            request.httpMethod = httpMethod.method
-        default:
+        guard ["GET", "POST"].contains(httpMethod.method) else {
             completionHandler(.failure(.unknownMethod))
-            return
+            return   
         }
+        request.httpMethod = httpMethod.method
+        httpMethod.headers.forEach { request.setValue($0.value, forHTTPHeaderField: $0.key) }
 
         if httpMethod.method == "POST" {
             guard let body = httpMethod.body else {
@@ -42,8 +41,6 @@ public extension URLSession {
                 return
             }
         }
-
-        httpMethod.headers.forEach { request.setValue($0.value, forHTTPHeaderField: $0.key) }
 
         dataTask(with: request) { data, response, error in
 
