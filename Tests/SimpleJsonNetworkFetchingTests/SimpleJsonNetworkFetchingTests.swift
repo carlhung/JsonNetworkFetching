@@ -5,38 +5,215 @@ import XCTest
     import FoundationNetworking
 #endif
 
+struct RequestUSERID : Encodable {
+	let providerKey : String?
+
+	enum CodingKeys: String, CodingKey {
+
+		case providerKey = "ProviderKey"
+	}
+
+    init(providerKey: String) {
+        self.providerKey = providerKey
+    }
+
+	init(from decoder: Decoder) throws {
+		let values = try decoder.container(keyedBy: CodingKeys.self)
+		providerKey = try values.decodeIfPresent(String.self, forKey: .providerKey)
+	}
+
+}
+
+struct USERIDReturned : Codable {
+	let resultNo : Int?
+	let result : String?
+	let message : String?
+	let total : Int?
+
+	enum CodingKeys: String, CodingKey {
+
+		case resultNo = "ResultNo"
+		case result = "Result"
+		case message = "Message"
+		case total = "Total"
+	}
+
+	init(from decoder: Decoder) throws {
+		let values = try decoder.container(keyedBy: CodingKeys.self)
+		resultNo = try values.decodeIfPresent(Int.self, forKey: .resultNo)
+		result = try values.decodeIfPresent(String.self, forKey: .result)
+		message = try values.decodeIfPresent(String.self, forKey: .message)
+		total = try values.decodeIfPresent(Int.self, forKey: .total)
+	}
+}
+
+struct RequestToken : Codable {
+	let userType : String?
+	let cityCode : String?
+	let userNo : String?
+	let tokenType : Int?
+
+    init(userType: String?, cityCode: String?, userNo: String?, tokenType: Int?) {
+        self.userType = userType
+        self.cityCode = cityCode
+        self.userNo = userNo
+        self.tokenType = tokenType
+    }
+
+	enum CodingKeys: String, CodingKey {
+
+		case userType = "UserType"
+		case cityCode = "CityCode"
+		case userNo = "UserNo"
+		case tokenType = "TokenType"
+	}
+
+	init(from decoder: Decoder) throws {
+		let values = try decoder.container(keyedBy: CodingKeys.self)
+		userType = try values.decodeIfPresent(String.self, forKey: .userType)
+		cityCode = try values.decodeIfPresent(String.self, forKey: .cityCode)
+		userNo = try values.decodeIfPresent(String.self, forKey: .userNo)
+		tokenType = try values.decodeIfPresent(Int.self, forKey: .tokenType)
+	}
+}
+
+struct ReturnToken : Codable {
+	let resultNo : Int?
+	let result : Result?
+	let message : String?
+
+	enum CodingKeys: String, CodingKey {
+
+		case resultNo = "ResultNo"
+		case result = "Result"
+		case message = "Message"
+	}
+
+	init(from decoder: Decoder) throws {
+		let values = try decoder.container(keyedBy: CodingKeys.self)
+		resultNo = try values.decodeIfPresent(Int.self, forKey: .resultNo)
+		result = try values.decodeIfPresent(Result.self, forKey: .result)
+		message = try values.decodeIfPresent(String.self, forKey: .message)
+	}
+    struct Result : Codable {
+	let token : String?
+	let userId : String?
+	let name : String?
+	let photo : String?
+	let centaNo : String?
+
+	enum CodingKeys: String, CodingKey {
+
+		case token = "Token"
+		case userId = "UserId"
+		case name = "Name"
+		case photo = "Photo"
+		case centaNo = "CentaNo"
+	}
+
+	init(from decoder: Decoder) throws {
+		let values = try decoder.container(keyedBy: CodingKeys.self)
+		token = try values.decodeIfPresent(String.self, forKey: .token)
+		userId = try values.decodeIfPresent(String.self, forKey: .userId)
+		name = try values.decodeIfPresent(String.self, forKey: .name)
+		photo = try values.decodeIfPresent(String.self, forKey: .photo)
+		centaNo = try values.decodeIfPresent(String.self, forKey: .centaNo)
+	}
+
+}
+}
+
+
+
 final class SimpleJsonNetworkFetchingTests: XCTestCase {
     // let shared: JsonNetworkFetching = SimpleJsonNetworkFetching(session: URLSession.shared)
     let shared: JsonNetworkFetching = SimpleJsonNetworkFetching(urlConfig: URLSessionConfiguration.default)
+    let uuid = "8a6b7d93-c0de-4171-86f6-70b349a1d345"
+    let headers =  ["Content-Type" : "application/json"]
 
-    // // https://swift.org/builds/swift-5.3.1-release/ubuntu2004/swift-5.3.1-RELEASE/swift-5.3.1-RELEASE-ubuntu20.04.tar.gz
     func testExample() {
-        var isNotFinish = true
-        guard let url = URL(string: "https://github.com/apple/sourcekit-lsp/archive/main.zip") else {
-            return
-        }
+        // guard let firstURL = URL(string: "https://mobileapi.centanet.com/passport/v6/json/reply/InsertHKUserInfoRequest") else {
+        //     print("failed to unwrap first url"); return
+        // }
+        
+        // var firstResult: Result<USERIDReturned, NetworkFetchingError>?
+        // shared.request(url: firstURL, httpMethod: .post(headers: headers, body: RequestUSERID.init(providerKey: uuid)), completionHandler: { (result: Result<USERIDReturned, NetworkFetchingError>) -> Void in 
+        //     firstResult = result
+        // })
+        // while firstResult == nil {}
+        // // switch finalResult! {
+        // // case let .failure(error):
+        // //     switch error { // String(decoding: returnedData, as: UTF8.self)
+        // //     case let .invalidStatusCode(statusCode, responseData: data):
+        // //         guard let data = data else { return }
+        // //         print("statusCode: \(statusCode), data: \(String(decoding: data, as:UTF8.self))")
+        // //     default:
+        // //         print("error: \(error)")
+        // //     }
+        // // case let .success(returnedUserID):
+        // //     print("returned userID: \(returnedUserID)")
+        // // }
 
-        let result = shared.download(url: url, httpMethod: SimpleJsonNetworkFetching.get()) {
-            switch $0 {
-            case let .success(data):
-                print("got the data")
-            case let .failure(error):
-                print("error: \(error)")
+        // guard case let .some(.success(returnedUserID)) = firstResult, let userID = returnedUserID.result else { 
+        //     print("failed in first returned data"); return 
+        // }
+        
+        // guard let secondURL = URL(string: "https://talk.centanet.com/im/020/Talk/GetToken") else {
+        //     print("failed to unwrap second url"); return
+        // }
+
+        // var secondResult: Result<ReturnToken, NetworkFetchingError>?
+        // let userID = "U120441784"
+        // shared.request(url: secondURL, httpMethod: .post(headers: headers, body: RequestToken(userType: "U", cityCode: "852", userNo: userID, tokenType: 1)), completionHandler: { (result: Result<ReturnToken, NetworkFetchingError>) -> Void in
+        //     secondResult = result
+        // })
+        // while secondResult == nil {}
+        // switch secondResult! {
+        // case .failure(let error):
+        //     print("second error: \(error)")
+        // case .success(let returnedVal):
+        //     print("returnedToken: \(returnedVal)")
+        // }
+
+
+        let secondURL = URL(string: "https://talk.centanet.com/im/020/Talk/GetToken")!
+        var isNotFinish = true
+        shared.request(url: secondURL, httpMethod: .post(headers: headers, body: RequestToken(userType: "U", cityCode: "852", userNo: "U120441784", tokenType: 1)), completionHandler: { (result: Result<ReturnToken, NetworkFetchingError>) -> Void in
+            if case let .success(returnedVal) = result{
+                print(returnedVal)
             }
             isNotFinish = false
-        } progressHandler: {
-            print("progress: \($0)")
-        }
-
-        switch result {
-        case let .failure(error):
-            print(error)
-        case let .success(task):
-            print("returned task")
-        }
-
+        })
         while isNotFinish {}
     }
+    // // https://swift.org/builds/swift-5.3.1-release/ubuntu2004/swift-5.3.1-RELEASE/swift-5.3.1-RELEASE-ubuntu20.04.tar.gz
+    // func testExample() {
+    //     var isNotFinish = true
+    //     guard let url = URL(string: "https://github.com/apple/sourcekit-lsp/archive/main.zip") else {
+    //         return
+    //     }
+
+    //     let result = shared.download(url: url, httpMethod: SimpleJsonNetworkFetching.get()) {
+    //         switch $0 {
+    //         case let .success(data):
+    //             print("got the data")
+    //         case let .failure(error):
+    //             print("error: \(error)")
+    //         }
+    //         isNotFinish = false
+    //     } progressHandler: {
+    //         print("progress: \($0)")
+    //     }
+
+    //     switch result {
+    //     case let .failure(error):
+    //         print(error)
+    //     case let .success(task):
+    //         print("returned task")
+    //     }
+
+    //     while isNotFinish {}
+    // }
 
     // func testExample() {
     //     guard let url = URL(string: "https://api.openweathermap.org/data/2.5/weather?q=London&appid=8a372de9f49b4406cb9fd89dbd739801") else { print("wrong url"); return }
