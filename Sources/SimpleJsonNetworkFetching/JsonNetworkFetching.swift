@@ -301,7 +301,25 @@ public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
 
 //     }
 
-//     // func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) { }
+//     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+//         let percentDownloaded = totalBytesWritten / totalBytesExpectedToWrite
+        
+//         // guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
+//         //     return
+//         // }
+//         // task.buffer.append(data)
+//         // let percentageDownloaded = Double(task.buffer.count) / Double(task.expectedContentLength)
+//         // #if os(iOS)
+//         //     DispatchQueue.main.async {
+//         //         task.progressHandler?(percentageDownloaded)
+//         //     }
+//         // #else
+//         //     task.progressHandler?(percentageDownloaded)
+//         // #endif
+        
+//     }
     
-//     // func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64) { }
+//     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64) {
+
+//     }
 // }
