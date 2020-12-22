@@ -13,8 +13,10 @@ import Foundation
 // // https://stackoverflow.com/questions/30543806/get-progress-from-datataskwithurl-in-swift/45290601
 
 public protocol DownloadTask {
-    var completionHandler: Result<Data, Error>.Completion? { get set }
-    var progressHandler: ((Double) -> Void)? { get set }
+    associatedtype DownloadedData
+    associatedtype AnyNumber: Numeric
+    var completionHandler: Result<DownloadedData, Error>.Completion? { get set }
+    var progressHandler: ((AnyNumber) -> Void)? { get set }
 
     func resume()
     func suspend()
@@ -25,7 +27,7 @@ public extension Result {
     typealias Completion = (Result<Success, Failure>) -> Void
 }
 
-public class GenericDownloadTask {
+public class GenericDownloadDataTask {
     public var completionHandler: Result<Data, Error>.Completion?
     public var progressHandler: ((Double) -> Void)?
 
@@ -38,7 +40,34 @@ public class GenericDownloadTask {
     }
 }
 
-extension GenericDownloadTask: DownloadTask {
+extension GenericDownloadDataTask: DownloadTask {
+    public func resume() {
+        task.resume()
+    }
+
+    public func suspend() {
+        task.suspend()
+    }
+
+    public func cancel() {
+        task.cancel()
+    }
+}
+
+public struct GenericDownloadFileTask: DownloadTask {
+    public var completionHandler: Result<URL, Error>.Completion?
+    public var progressHandler: ((Double) -> Void)?
+
+    private(set) var task: URLSessionDownloadTask
+    // var expectedContentLength: Int64 = 0
+    // var buffer = Data()
+
+    init(task: URLSessionDownloadTask) {
+        self.task = task
+    }
+}
+
+extension GenericDownloadFileTask {
     public func resume() {
         task.resume()
     }

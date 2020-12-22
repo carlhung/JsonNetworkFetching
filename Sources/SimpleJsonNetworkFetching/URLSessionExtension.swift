@@ -23,7 +23,7 @@ public extension URLSession {
 
         guard ["GET", "POST"].contains(httpMethod.method) else {
             completionHandler(.failure(.unknownMethod))
-            return   
+            return
         }
         request.httpMethod = httpMethod.method
         httpMethod.headers.forEach { request.setValue($0.value, forHTTPHeaderField: $0.key) }

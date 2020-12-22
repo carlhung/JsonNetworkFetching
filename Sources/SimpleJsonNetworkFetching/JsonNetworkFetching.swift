@@ -7,7 +7,8 @@ public let defaultStatusCodeSet = Set(200 ... 299)
 public let defaultURLRequestCachePolicy = URLRequest.CachePolicy.useProtocolCachePolicy
 public let defaultURLRequestTimeoutInterval: TimeInterval = 60.0
 
-public typealias NetworkFetchAndDownload = JsonNetworkFetching & URLSessionDataDelegate & NSObject//URLSessionDownloadDelegate
+public typealias NetworkFetchAndDownload = JsonNetworkFetching & URLSessionDataDelegate & NSObject // URLSessionDownloadDelegate
+// public typealias NetworkFetchAndDownload = JsonNetworkFetching & URLSessionDownloadDelegate & NSObject // URLSessionDownloadDelegate
 
 public protocol JsonNetworkFetching: AnyObject {
     var session: URLSession? { get set }
@@ -20,8 +21,10 @@ public protocol JsonNetworkFetching: AnyObject {
 
     /// Use this if you want to download data with progress.
     init(urlConfig: URLSessionConfiguration)
-    var downloadTasks: [GenericDownloadTask] { get set }
-    func download<T: Encodable>(url: URL, httpMethod: HTTPMethod<T>, statusCodeSet: Set<Int>, cachePolicy: URLRequest.CachePolicy, timeoutInterval: TimeInterval, completionHandler: ((Result<Data, Error>) -> Void)?, progressHandler: ((Double) -> Void)?) -> Result<DownloadTask, NetworkFetchingError>
+    var downloadTasks: [GenericDownloadDataTask] { get set }
+    func download<T: Encodable>(url: URL, httpMethod: HTTPMethod<T>, statusCodeSet: Set<Int>, cachePolicy: URLRequest.CachePolicy, timeoutInterval: TimeInterval, completionHandler: ((Result<Data, Error>) -> Void)?, progressHandler: ((Double) -> Void)?) -> Result<GenericDownloadDataTask, NetworkFetchingError>
+    // var downloadTasks: [GenericDownloadFileTask] { get set }
+    // func download<T: Encodable>(url: URL, httpMethod: HTTPMethod<T>, statusCodeSet: Set<Int>, cachePolicy: URLRequest.CachePolicy, timeoutInterval: TimeInterval, completionHandler: ((Result<URL, Error>) -> Void)?, progressHandler: ((Double) -> Void)?) -> Result<GenericDownloadFileTask, NetworkFetchingError>
 
     /// This method returns the raw data.
     ///
@@ -144,7 +147,7 @@ public extension JsonNetworkFetching {
     }
 
     @discardableResult
-    func download<T: Encodable>(url: URL, httpMethod: HTTPMethod<T>, statusCodeSet _: Set<Int> = defaultStatusCodeSet, cachePolicy: URLRequest.CachePolicy = defaultURLRequestCachePolicy, timeoutInterval: TimeInterval = defaultURLRequestTimeoutInterval, completionHandler: ((Result<Data, Error>) -> Void)?, progressHandler: ((Double) -> Void)?) -> Result<DownloadTask, NetworkFetchingError> {
+    func download<T: Encodable>(url: URL, httpMethod: HTTPMethod<T>, statusCodeSet _: Set<Int> = defaultStatusCodeSet, cachePolicy: URLRequest.CachePolicy = defaultURLRequestCachePolicy, timeoutInterval: TimeInterval = defaultURLRequestTimeoutInterval, completionHandler: ((Result<Data, Error>) -> Void)?, progressHandler: ((Double) -> Void)?) -> Result<GenericDownloadDataTask, NetworkFetchingError> {
         switch Self.createRequest(url: url, httpMethod: httpMethod, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval) {
         case let .failure(error):
             return .failure(error)
@@ -152,7 +155,7 @@ public extension JsonNetworkFetching {
             guard let task = session?.dataTask(with: request) else {
                 return .failure(.nilSession)
             }
-            let downloadTask = GenericDownloadTask(task: task)
+            let downloadTask = GenericDownloadDataTask(task: task)
             downloadTask.completionHandler = completionHandler
             downloadTask.progressHandler = progressHandler
             downloadTask.resume()
@@ -160,6 +163,24 @@ public extension JsonNetworkFetching {
             return .success(downloadTask)
         }
     }
+
+    // @discardableResult
+    // func download<T: Encodable>(url: URL, httpMethod: HTTPMethod<T>, statusCodeSet _: Set<Int> = defaultStatusCodeSet, cachePolicy: URLRequest.CachePolicy = defaultURLRequestCachePolicy, timeoutInterval: TimeInterval = defaultURLRequestTimeoutInterval, completionHandler: ((Result<URL, Error>) -> Void)?, progressHandler: ((Double) -> Void)?) -> Result<GenericDownloadFileTask, NetworkFetchingError> {
+    //     switch Self.createRequest(url: url, httpMethod: httpMethod, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval) {
+    //     case let .failure(error):
+    //         return .failure(error)
+    //     case let .success(request):
+    //         guard let task = session?.downloadTask(with: request) else {
+    //             return .failure(.nilSession)
+    //         }
+    //         var downloadTask = GenericDownloadFileTask(task: task)
+    //         downloadTask.completionHandler = completionHandler
+    //         downloadTask.progressHandler = progressHandler
+    //         downloadTask.resume()
+    //         downloadTasks.append(downloadTask)
+    //         return .success(downloadTask)
+    //     }
+    // }
 }
 
 // MARK: - All Static Helpers
@@ -296,30 +317,41 @@ public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
 }
 
 // https://medium.com/swlh/tracking-download-progress-with-urlsessiondownloaddelegate-5174147009f
-// public extension JsonNetworkFetching where Self: URLSessionDownloadDelegate  {
-//     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-
+// public extension JsonNetworkFetching where Self: URLSessionDownloadDelegate {
+//     init(urlConfig: URLSessionConfiguration) {
+//         self.init()
+//         session = URLSession(configuration: urlConfig, delegate: self, delegateQueue: nil)
 //     }
 
-//     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
-//         let percentDownloaded = totalBytesWritten / totalBytesExpectedToWrite
-        
-//         // guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
-//         //     return
-//         // }
-//         // task.buffer.append(data)
-//         // let percentageDownloaded = Double(task.buffer.count) / Double(task.expectedContentLength)
-//         // #if os(iOS)
-//         //     DispatchQueue.main.async {
-//         //         task.progressHandler?(percentageDownloaded)
-//         //     }
-//         // #else
-//         //     task.progressHandler?(percentageDownloaded)
-//         // #endif
-        
+//     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo: URL) {
+//         guard let index = downloadTasks.firstIndex(where: { $0.task == downloadTask }) else {
+//             return
+//         }
+//         let task = downloadTasks.remove(at: index)
+//         #if os(iOS)
+//             DispatchQueue.main.async {
+//                 task.completionHandler?(.success(didFinishDownloadingTo))    
+//             }
+//         #else
+//             task.completionHandler?(.success(didFinishDownloadingTo))
+//         #endif
 //     }
-    
-//     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64) {
 
+//     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+//          guard let index = downloadTasks.firstIndex(where: { $0.task == downloadTask }) else {
+//             return
+//         }
+//         let percentageDownloaded = Double(totalBytesWritten / totalBytesExpectedToWrite)
+//         #if os(iOS)
+//             DispatchQueue.main.async {
+//                 downloadTasks[index].progressHandler?(percentageDownloaded)
+//             }
+//         #else
+//             downloadTasks[index].progressHandler?(percentageDownloaded)
+//         #endif
 //     }
+
+//     // func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset: Int64, expectedTotalBytes: Int64) {
+
+//     // }
 // }
