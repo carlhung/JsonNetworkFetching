@@ -27,7 +27,7 @@ public extension Result {
     typealias Completion = (Result<Success, Failure>) -> Void
 }
 
-public class GenericDownloadDataTask {
+public struct GenericDownloadDataTask {
     public var completionHandler: Result<Data, Error>.Completion?
     public var progressHandler: ((Double) -> Void)?
 

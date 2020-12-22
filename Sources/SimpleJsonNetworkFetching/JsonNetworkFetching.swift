@@ -155,7 +155,7 @@ public extension JsonNetworkFetching {
             guard let task = session?.dataTask(with: request) else {
                 return .failure(.nilSession)
             }
-            let downloadTask = GenericDownloadDataTask(task: task)
+            var downloadTask = GenericDownloadDataTask(task: task)
             downloadTask.completionHandler = completionHandler
             downloadTask.progressHandler = progressHandler
             downloadTask.resume()
@@ -268,27 +268,29 @@ public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
 
     /// Step 1. It will be called when starting downloading.
     func urlSession(_: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
-        guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
+        // guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
+        guard let index = downloadTasks.firstIndex(where: { $0.task == dataTask }) else {
             completionHandler(.cancel)
             return
         }
-        task.expectedContentLength = response.expectedContentLength
+        downloadTasks[index].expectedContentLength = response.expectedContentLength
         completionHandler(.allow)
     }
 
     /// Step 2. It will be called when downloading and will be called multiple times to update the progress.
     func urlSession(_: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
-        guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
+        // guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
+        guard let index = downloadTasks.firstIndex(where: { $0.task == dataTask }) else {
             return
         }
-        task.buffer.append(data)
-        let percentageDownloaded = Double(task.buffer.count) / Double(task.expectedContentLength)
+        downloadTasks[index].buffer.append(data)
+        let percentageDownloaded = Double(downloadTasks[index].buffer.count) / Double(downloadTasks[index].expectedContentLength)
         #if os(iOS)
             DispatchQueue.main.async {
-                task.progressHandler?(percentageDownloaded)
+                downloadTasks[index].progressHandler?(percentageDownloaded)
             }
         #else
-            task.progressHandler?(percentageDownloaded)
+            downloadTasks[index].progressHandler?(percentageDownloaded)
         #endif
     }
 
@@ -297,22 +299,22 @@ public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
         guard let index = downloadTasks.firstIndex(where: { $0.task == task }) else {
             return
         }
-        let task = downloadTasks.remove(at: index)
         #if os(iOS)
             DispatchQueue.main.async {
                 if let e = error {
-                    task.completionHandler?(.failure(e))
+                    downloadTasks[index].completionHandler?(.failure(e))
                 } else {
-                    task.completionHandler?(.success(task.buffer))
+                    downloadTasks[index].completionHandler?(.success(downloadTasks[index].buffer))
                 }
             }
         #else
             if let e = error {
-                task.completionHandler?(.failure(e))
+                downloadTasks[index].completionHandler?(.failure(e))
             } else {
-                task.completionHandler?(.success(task.buffer))
+                downloadTasks[index].completionHandler?(.success(downloadTasks[index].buffer))
             }
         #endif
+        downloadTasks.remove(at: index)
     }
 }
 
