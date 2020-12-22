@@ -35,8 +35,10 @@ public struct GenericDownloadDataTask {
     var expectedContentLength: Int64 = 0
     var buffer = Data()
 
-    init(task: URLSessionDataTask) {
+    init(task: URLSessionDataTask, progressHandler: ((Double) -> Void)? = nil, completionHandler: Result<Data, Error>.Completion? = nil) {
         self.task = task
+        self.progressHandler = progressHandler
+        self.completionHandler = completionHandler
     }
 }
 

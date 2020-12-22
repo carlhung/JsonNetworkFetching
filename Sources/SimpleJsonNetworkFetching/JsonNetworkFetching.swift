@@ -155,9 +155,7 @@ public extension JsonNetworkFetching {
             guard let task = session?.dataTask(with: request) else {
                 return .failure(.nilSession)
             }
-            var downloadTask = GenericDownloadDataTask(task: task)
-            downloadTask.completionHandler = completionHandler
-            downloadTask.progressHandler = progressHandler
+            let downloadTask = GenericDownloadDataTask(task: task, progressHandler: progressHandler, completionHandler: completionHandler)
             downloadTask.resume()
             downloadTasks.append(downloadTask)
             return .success(downloadTask)
