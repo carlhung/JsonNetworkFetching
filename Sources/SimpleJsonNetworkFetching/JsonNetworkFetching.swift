@@ -207,11 +207,8 @@ public extension JsonNetworkFetching {
         default:
             return .failure(.unknownMethod)
         }
-
-        if httpMethod.method == type(of: httpMethod).post {
-            guard let body = httpMethod.body else {
-                return .failure(.postRequestHasNoBody)
-            }
+        
+        if httpMethod.method == type(of: httpMethod).post, let body = httpMethod.body {
             do {
                 let data = try JSONEncoder().encode(body)
                 request.httpBody = data
@@ -221,7 +218,6 @@ public extension JsonNetworkFetching {
         }
 
         httpMethod.headers.forEach { request.setValue($0.value, forHTTPHeaderField: $0.key) }
-
         return .success(request)
     }
 

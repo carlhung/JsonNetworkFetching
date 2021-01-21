@@ -30,7 +30,7 @@ public extension HTTPMethod {
         return Self(method: Self.get, headers: headers, body: nil)
     }
 
-    static func post(headers: [String: String] = [:], body: T) -> Self {
+    static func post(headers: [String: String] = [:], body: T?) -> Self {
         return Self(method: Self.post, headers: headers, body: body)
     }
 }
