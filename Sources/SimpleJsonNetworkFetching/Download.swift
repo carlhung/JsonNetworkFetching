@@ -53,9 +53,7 @@ extension DownloadTask {
 
 public struct GenericDownloadDataTask: DownloadTask {
     
-    public init() {
-        fatalError("init() has not been implemented")
-    }
+    public init() {}
     
     public var completionHandler: ((Result<Data, Error>) -> Void)?
     public var progressHandler: ((Double) -> Void)?
@@ -67,9 +65,7 @@ public struct GenericDownloadDataTask: DownloadTask {
 
 public struct GenericDownloadFileTask: DownloadTask {
 
-    public init() {
-        fatalError("init() has not been implemented")
-    }
+    public init() {}
 
     public var completionHandler: ((Result<URL, Error>) -> Void)?
     public var progressHandler: ((Double) -> Void)?
