@@ -48,3 +48,4 @@ public extension Method {
 
 /// Stump struct for being used by `get`
 public struct Stump: Encodable {}
+public typealias MethodGet = HTTPMethod<Stump>
