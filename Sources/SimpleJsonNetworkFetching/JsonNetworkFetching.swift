@@ -16,7 +16,8 @@ public typealias NetworkFetchAndDownload = JsonNetworkFetching & URLSessionDataD
 // public typealias NetworkFetchAndDownload = JsonNetworkFetching & URLSessionDownloadDelegate & NSObject // URLSessionDownloadDelegate
 
 public protocol JsonNetworkFetching: AnyObject {
-    associatedtype Download 
+//    associatedtype Download: DownloadTask
+    var downloadTasks: [GenericDownloadDataTask] { get set }
     var session: URLSession? { get set }
 
     /// use this but you can't show the progress when downloading data.
@@ -27,7 +28,7 @@ public protocol JsonNetworkFetching: AnyObject {
 
     /// Use this if you want to download data with progress.
     init(urlConfig: URLSessionConfiguration)
-    var downloadTasks: [GenericDownloadDataTask] { get set }
+    
     func download<T: Method>(url: URL, httpMethod: T, statusCodeSet: Set<Int>, cachePolicy: URLRequest.CachePolicy, timeoutInterval: TimeInterval, completionHandler: ((Result<Data, Error>) -> Void)?, progressHandler: ((Double) -> Void)?) -> Result<GenericDownloadDataTask, NetworkFetchingError>
     // var downloadTasks: [GenericDownloadFileTask] { get set }
     // func download<T: Method>(url: URL, httpMethod: T, statusCodeSet: Set<Int>, cachePolicy: URLRequest.CachePolicy, timeoutInterval: TimeInterval, completionHandler: ((Result<URL, Error>) -> Void)?, progressHandler: ((Double) -> Void)?) -> Result<GenericDownloadFileTask, NetworkFetchingError>
@@ -340,7 +341,7 @@ public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
 //         self.init()
 //         session = URLSession(configuration: urlConfig, delegate: self, delegateQueue: nil)
 //     }
-
+//
 //     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo: URL) {
 //         guard let index = downloadTasks.firstIndex(where: { $0.task == downloadTask }) else {
 //             return
@@ -348,13 +349,13 @@ public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
 //         let task = downloadTasks.remove(at: index)
 //         #if os(iOS)
 //             DispatchQueue.main.async {
-//                 task.completionHandler?(.success(didFinishDownloadingTo))    
+//                 task.completionHandler?(.success(didFinishDownloadingTo))
 //             }
 //         #else
 //             task.completionHandler?(.success(didFinishDownloadingTo))
 //         #endif
 //     }
-
+//
 //     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
 //          guard let index = downloadTasks.firstIndex(where: { $0.task == downloadTask }) else {
 //             return
@@ -368,8 +369,8 @@ public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
 //             downloadTasks[index].progressHandler?(percentageDownloaded)
 //         #endif
 //     }
-
+//
 //     // func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset: Int64, expectedTotalBytes: Int64) {
-
+//
 //     // }
 // }
