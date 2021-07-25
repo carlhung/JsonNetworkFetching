@@ -23,7 +23,7 @@ public protocol DownloadTask {
     
     var completionHandler: ((Result<DownloadedData, Error>) -> Void)? { get set }
     var progressHandler: ((AnyNumber) -> Void)? { get set }
-    var task: SessionTask! { get set }
+    var task: SessionTask? { get set }
     func resume()
     func suspend()
     func cancel()
@@ -39,15 +39,15 @@ extension DownloadTask {
     }
     
     public func resume() {
-        task.resume()
+        task?.resume()
     }
 
     public func suspend() {
-        task.suspend()
+        task?.suspend()
     }
 
     public func cancel() {
-        task.cancel()
+        task?.cancel()
     }
 }
 
@@ -58,7 +58,7 @@ public struct GenericDownloadDataTask: DownloadTask {
     public var completionHandler: ((Result<Data, Error>) -> Void)?
     public var progressHandler: ((Double) -> Void)?
 
-    public var task: URLSessionDataTask!
+    public var task: URLSessionDataTask?
     var expectedContentLength: Int64 = 0
     var buffer = Data()
 }
@@ -70,7 +70,7 @@ public struct GenericDownloadFileTask: DownloadTask {
     public var completionHandler: ((Result<URL, Error>) -> Void)?
     public var progressHandler: ((Double) -> Void)?
 
-    public var task: URLSessionDownloadTask!
+    public var task: URLSessionDownloadTask?
     // var expectedContentLength: Int64 = 0
     // var buffer = Data()
 }

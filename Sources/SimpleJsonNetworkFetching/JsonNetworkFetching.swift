@@ -217,8 +217,7 @@ public extension JsonNetworkFetching {
     static func createRequest<T: Method>(url: URL,
                                             httpMethod: T,
                                             cachePolicy: URLRequest.CachePolicy,
-                                            timeoutInterval: TimeInterval) -> Result<URLRequest, NetworkFetchingError>
-    {
+                                            timeoutInterval: TimeInterval) -> Result<URLRequest, NetworkFetchingError> {
         var request = URLRequest(url: url, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval)
 
         switch httpMethod.method {
