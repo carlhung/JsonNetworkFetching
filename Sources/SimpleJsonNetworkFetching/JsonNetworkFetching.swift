@@ -16,6 +16,7 @@ public typealias NetworkFetchAndDownload = JsonNetworkFetching & URLSessionDataD
 // public typealias NetworkFetchAndDownload = JsonNetworkFetching & URLSessionDownloadDelegate & NSObject // URLSessionDownloadDelegate
 
 public protocol JsonNetworkFetching: AnyObject {
+    associatedtype Download 
     var session: URLSession? { get set }
 
     /// use this but you can't show the progress when downloading data.
