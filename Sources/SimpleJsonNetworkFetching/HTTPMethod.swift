@@ -5,10 +5,19 @@
 //  Created by carlhung on 3/12/2020.
 //
 
-public struct HTTPMethod<T: Encodable> {
-    public let method: String
-    public let headers: [String: String]
-    public let body: T?
+public protocol Method {
+    associatedtype EncodableBody: Encodable
+    init(method: String, headers: [String: String], body: EncodableBody?)
+    var method: String { get set }
+    var headers: [String: String] { get set }
+    var body: EncodableBody? { get set }
+}
+
+public struct HTTPMethod<T: Encodable>: Method {
+    public typealias EncodableBody = T
+    public var method: String
+    public var headers: [String: String]
+    public var body: T?
 
     public init(method: String, headers: [String: String], body: T?) {
         self.method = method
@@ -17,7 +26,7 @@ public struct HTTPMethod<T: Encodable> {
     }
 }
 
-public extension HTTPMethod {
+public extension Method {
     static var get: String {
         return "GET"
     }
@@ -30,7 +39,7 @@ public extension HTTPMethod {
         return Self(method: Self.get, headers: headers, body: nil)
     }
 
-    static func post(headers: [String: String] = [:], body: T?) -> Self {
+    static func post(headers: [String: String] = [:], body: EncodableBody?) -> Self {
         return Self(method: Self.post, headers: headers, body: body)
     }
 }
