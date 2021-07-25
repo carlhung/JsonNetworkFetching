@@ -280,8 +280,8 @@ public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
         downloadTasks[index].buffer.append(data)
         let percentageDownloaded = Double(downloadTasks[index].buffer.count) / Double(downloadTasks[index].expectedContentLength)
         #if os(iOS)
-            DispatchQueue.main.async {
-                downloadTasks[index].progressHandler?(percentageDownloaded)
+            DispatchQueue.main.async { [unowned self] in
+                self.downloadTasks[index].progressHandler?(percentageDownloaded)
             }
         #else
             downloadTasks[index].progressHandler?(percentageDownloaded)
@@ -294,7 +294,7 @@ public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
             return
         }
         #if os(iOS)
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [unowned self] in
                 if let e = error {
                     downloadTasks[index].completionHandler?(.failure(e))
                 } else {
