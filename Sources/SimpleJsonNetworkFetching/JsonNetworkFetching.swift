@@ -71,15 +71,15 @@ public extension JsonNetworkFetching {
         }
 
         session?.dataTask(with: request) { data, response, error in
-            #if os(iOS) // || os(watchOS) //|| os(OSX)
+            #if os(Linux) // || os(watchOS) //|| os(OSX) // os(iOS)
+                let result = Self.dataHandler(error: error, response: response, data: data, statusCodeSet: statusCodeSet)
+                completionHandler(result)           
+            #else //            #elseif
                 DispatchQueue.main.async {
                     let result = Self.dataHandler(error: error, response: response, data: data, statusCodeSet: statusCodeSet)
                     completionHandler(result)
                 }
-            //            #elseif
-            #else
-                let result = Self.dataHandler(error: error, response: response, data: data, statusCodeSet: statusCodeSet)
-                completionHandler(result)
+
             #endif
         }
         .resume()
@@ -103,19 +103,19 @@ public extension JsonNetworkFetching {
         }
 
         session?.dataTask(with: request) { data, response, error in
-            #if os(iOS)
+            #if os(Linux)
+                let result = Self.dataHandler(error: error, response: response, data: data, statusCodeSet: statusCodeSet)
+                switch result {
+                case let .failure(error): completionHandler(.failure(error))
+                case let .success(returnedData): completionHandler(.success(String(decoding: returnedData, as: UTF8.self)))
+                }
+            #else
                 DispatchQueue.main.async {
                     let result = Self.dataHandler(error: error, response: response, data: data, statusCodeSet: statusCodeSet)
                     switch result {
                     case let .failure(error): completionHandler(.failure(error))
                     case let .success(returnedData): completionHandler(.success(String(decoding: returnedData, as: UTF8.self)))
                     }
-                }
-            #else
-                let result = Self.dataHandler(error: error, response: response, data: data, statusCodeSet: statusCodeSet)
-                switch result {
-                case let .failure(error): completionHandler(.failure(error))
-                case let .success(returnedData): completionHandler(.success(String(decoding: returnedData, as: UTF8.self)))
                 }
             #endif
         }
@@ -140,14 +140,14 @@ public extension JsonNetworkFetching {
         }
 
         session?.dataTask(with: request) { data, response, error in
-            #if os(iOS)
+            #if os(Linux)
+                let result: Result<Output, NetworkFetchingError> = Self.decodableDataHandler(error: error, response: response, data: data, statusCodeSet: statusCodeSet)
+                completionHandler(result)
+            #else
                 DispatchQueue.main.async {
                     let result: Result<Output, NetworkFetchingError> = Self.decodableDataHandler(error: error, response: response, data: data, statusCodeSet: statusCodeSet)
                     completionHandler(result)
                 }
-            #else
-                let result: Result<Output, NetworkFetchingError> = Self.decodableDataHandler(error: error, response: response, data: data, statusCodeSet: statusCodeSet)
-                completionHandler(result)
             #endif
         }
         .resume()
@@ -298,12 +298,12 @@ public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
         }
         downloadTasks[index].buffer.append(data)
         let percentageDownloaded = Double(downloadTasks[index].buffer.count) / Double(downloadTasks[index].expectedContentLength)
-        #if os(iOS)
+        #if os(Linux)
+            downloadTasks[index].progressHandler?(percentageDownloaded)
+        #else
             DispatchQueue.main.async { [weak self] in
                 self?.downloadTasks[index].progressHandler?(percentageDownloaded)
-            }
-        #else
-            downloadTasks[index].progressHandler?(percentageDownloaded)
+            }            
         #endif
     }
 
@@ -312,7 +312,13 @@ public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
         guard let index = downloadTasks.firstIndex(where: { $0.task == task }) else {
             return
         }
-        #if os(iOS)
+        #if os(Linux)
+            if let e = error {
+                downloadTasks[index].completionHandler?(.failure(e))
+            } else {
+                downloadTasks[index].completionHandler?(.success(downloadTasks[index].buffer))
+            }
+        #else
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else {
                     return
@@ -322,12 +328,6 @@ public extension JsonNetworkFetching where Self: URLSessionDataDelegate {
                 } else {
                     self.downloadTasks[index].completionHandler?(.success(self.downloadTasks[index].buffer))
                 }
-            }
-        #else
-            if let e = error {
-                downloadTasks[index].completionHandler?(.failure(e))
-            } else {
-                downloadTasks[index].completionHandler?(.success(downloadTasks[index].buffer))
             }
         #endif
         downloadTasks.remove(at: index)
