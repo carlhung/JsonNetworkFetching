@@ -3,10 +3,11 @@ import Foundation
     import FoundationNetworking
 #endif
 
-public class SimpleJsonNetworkFetching: NetworkFetchAndDownload {
+public class SimpleJsonNetworkFetching: NetworkFetchingData {
     public var session: URLSession?
     public var downloadTasks: [GenericDownloadDataTask] = []
-    // public var downloadTasks: [GenericDownloadFileTask] = []
 
     override public required init() {}
 }
+
+

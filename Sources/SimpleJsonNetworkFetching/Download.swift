@@ -29,6 +29,12 @@ public protocol DownloadTask {
     func cancel()
 }
 
+public protocol DataBuffer {
+    var expectedContentLength: Int64 { get set }
+    var buffer: Data { get set }
+
+}
+
 extension DownloadTask {
     
     public init(task: SessionTask, progressHandler: ((AnyNumber) -> Void)? = nil, completionHandler: ((Result<DownloadedData, Error>) -> Void)? = nil) {
@@ -51,7 +57,7 @@ extension DownloadTask {
     }
 }
 
-public struct GenericDownloadDataTask: DownloadTask {
+public struct GenericDownloadDataTask: DownloadTask & DataBuffer {
     
     public init() {}
     
@@ -59,8 +65,8 @@ public struct GenericDownloadDataTask: DownloadTask {
     public var progressHandler: ((Double) -> Void)?
 
     public var task: URLSessionDataTask?
-    var expectedContentLength: Int64 = 0
-    var buffer = Data()
+    public var expectedContentLength: Int64 = 0
+    public var buffer = Data()
 }
 
 public struct GenericDownloadFileTask: DownloadTask {
