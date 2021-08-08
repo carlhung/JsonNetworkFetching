@@ -198,7 +198,7 @@ extension FetchingAndDownload where Download.SessionTask == URLSessionDataTask {
 
 extension FetchingAndDownload where Download.SessionTask == URLSessionDownloadTask {
     @discardableResult
-    func download<T: Method>(url: URL, httpMethod: T, statusCodeSet: Set<Int> = defaultStatusCodeSet, cachePolicy: URLRequest.CachePolicy = defaultURLRequestCachePolicy, timeoutInterval: TimeInterval = defaultURLRequestTimeoutInterval, completionHandler: ((Result<Download.DownloadedData, Error>) -> Void)?, progressHandler: ((Download.AnyNumber) -> Void)?) -> Result<Download, NetworkFetchingError> {
+    public func download<T: Method>(url: URL, httpMethod: T, statusCodeSet: Set<Int> = defaultStatusCodeSet, cachePolicy: URLRequest.CachePolicy = defaultURLRequestCachePolicy, timeoutInterval: TimeInterval = defaultURLRequestTimeoutInterval, completionHandler: ((Result<Download.DownloadedData, Error>) -> Void)?, progressHandler: ((Download.AnyNumber) -> Void)?) -> Result<Download, NetworkFetchingError> {
         switch Self.createRequest(url: url, httpMethod: httpMethod, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval) {
         case let .failure(error):
             return .failure(error)

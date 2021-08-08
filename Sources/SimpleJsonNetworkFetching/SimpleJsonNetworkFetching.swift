@@ -11,3 +11,9 @@ public class SimpleJsonNetworkFetching: NetworkFetchingData {
 }
 
 
+public class DownloadAndFetch: NetworkFetchingDownload {
+    public var session: URLSession?
+    public var downloadTasks: [GenericDownloadFileTask] = []
+
+    override public required init() {}
+}
