@@ -7,7 +7,7 @@ import XCTest
 
 final class SimpleJsonNetworkFetchingTests: XCTestCase {
     // let shared: JsonNetworkFetching = SimpleJsonNetworkFetching(session: URLSession.shared)
-    let shared = DownloadAndFetch(urlConfig: URLSessionConfiguration.default)
+    let shared = SimpleJsonNetworkFetching(urlConfig: URLSessionConfiguration.default)
     // let uuid = "8a6b7d93-c0de-4171-86f6-70b349a1d345"
     // let headers = ["Content-Type": "application/json"]
 

@@ -77,33 +77,4 @@ public struct GenericDownloadFileTask: DownloadTask {
     public var progressHandler: ((Double) -> Void)?
 
     public var task: URLSessionDownloadTask?
-    // var expectedContentLength: Int64 = 0
-    // var buffer = Data()
 }
-
-// public class GenericDownloadTask {
-//     public var completionHandler: Result<Data, Error>.Completion?
-//     public var progressHandler: ((Int64) -> Void)?
-
-//     private(set) var task: URLSessionDownloadTask
-//     var expectedContentLength: Int64 = 0
-//     var buffer = Data()
-
-//     init(task: URLSessionDownloadTask) {
-//         self.task = task
-//     }
-// }
-
-// extension GenericDownloadTask: DownloadTask {
-//     public func resume() {
-//         task.resume()
-//     }
-
-//     public func suspend() {
-//         task.suspend()
-//     }
-
-//     public func cancel() {
-//         task.cancel()
-//     }
-// }

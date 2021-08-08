@@ -158,24 +158,6 @@ public extension JsonNetworkFetching {
         }
         .resume()
     }
-    
-    // @discardableResult
-    // func download<T: Method>(url: URL, httpMethod: T, statusCodeSet _: Set<Int> = defaultStatusCodeSet, cachePolicy: URLRequest.CachePolicy = defaultURLRequestCachePolicy, timeoutInterval: TimeInterval = defaultURLRequestTimeoutInterval, completionHandler: ((Result<URL, Error>) -> Void)?, progressHandler: ((Double) -> Void)?) -> Result<GenericDownloadFileTask, NetworkFetchingError> {
-    //     switch Self.createRequest(url: url, httpMethod: httpMethod, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval) {
-    //     case let .failure(error):
-    //         return .failure(error)
-    //     case let .success(request):
-    //         guard let task = session?.downloadTask(with: request) else {
-    //             return .failure(.nilSession)
-    //         }
-    //         var downloadTask = GenericDownloadFileTask(task: task)
-    //         downloadTask.completionHandler = completionHandler
-    //         downloadTask.progressHandler = progressHandler
-    //         downloadTask.resume()
-    //         downloadTasks.append(downloadTask)
-    //         return .success(downloadTask)
-    //     }
-    // }
 }
 
 extension FetchingAndDownload where Download.SessionTask == URLSessionDataTask {
@@ -310,7 +292,6 @@ public extension FetchingAndDownload where Self: URLSessionDataDelegate, Downloa
     
     /// Step 1. It will be called when starting downloading.
     func urlSession(_: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
-        // guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
         guard let index = downloadTasks.firstIndex(where: { $0.task == dataTask }) else {
             completionHandler(.cancel)
             return
@@ -321,7 +302,6 @@ public extension FetchingAndDownload where Self: URLSessionDataDelegate, Downloa
     
     /// Step 2. It will be called when downloading and will be called multiple times to update the progress.
     func urlSession(_: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
-        // guard let task = downloadTasks.first(where: { $0.task == dataTask }) else {
         guard let index = downloadTasks.firstIndex(where: { $0.task == dataTask }) else {
             return
         }
@@ -393,8 +373,4 @@ public extension FetchingAndDownload where Self: URLSessionDownloadDelegate, Dow
         }
         #endif
     }
-    
-    // func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset: Int64, expectedTotalBytes: Int64) {
-    
-    // }
 }
